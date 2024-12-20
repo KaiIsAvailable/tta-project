@@ -1,0 +1,101 @@
+/* General Styles for Profile Page */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 20px;
+}
+
+.profile-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr;  /* 1 part for left and 2 parts for right */
+    gap: 30px;
+    align-items: stretch; /* Ensures both columns stretch to same height */
+}
+
+.profile-left, .profile-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Ensures content is spaced evenly within both columns */
+}
+
+.profile-left {
+    text-align: center;
+}
+
+.profile-left .profile-pictures {
+    width: 350px;
+    height: 350px;
+    margin-left: auto;
+    margin-right: auto;
+    border: 2px solid #ddd;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* Hide anything overflowing the border */
+}
+
+.profile-left .profile-pictures img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures the image covers the entire area without distortion */
+    object-position: center; /* Centers the image within the container */
+}
+
+.profile-left h3 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.profile-left p {
+    font-size: 14px;
+    color: #6c757d;
+}
+
+/* Right Column (Student Information) */
+.profile-right {
+    padding-left: 20px; /* Add some padding to the left */
+}
+
+.card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    height: 100%;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.card h5 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+/* Contact Information */
+.contact-info a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+.contact-info a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 767px) {
+    .profile-container {
+        grid-template-columns: 1fr; /* Stack them on top of each other */
+    }
+
+    .profile-pictures {
+        width: 120px;
+        height: 120px;
+    }
+
+    .profile-left h3 {
+        font-size: 20px;
+    }
+}

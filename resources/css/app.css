@@ -1,0 +1,199 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --primary-color: #ffffff;
+    --hover-color: #46b6e6;
+    --alert-success-bg: #d4edda;
+    --alert-success-color: #155724;
+    --alert-error-bg: #f8d7da;
+    --alert-error-color: #8d0e1b;
+    --padding-standard: 10px;
+    --font-color: #000000;
+}
+
+/*Navigation*/
+.navigation{
+    background-color: var(--primary-color);
+    color: var(--font-color);
+}
+
+/* General Container */
+.container {
+    padding: 15px;
+    background-color: var(--primary-color);
+}
+
+/* Alert Styles */
+.alert-success {
+    color: var(--alert-success-color);
+    background-color: var(--alert-success-bg);
+    border-color: #c3e6cb;
+}
+
+.alert-danger {
+    color: var(--alert-error-color);
+    background-color: var(--alert-error-bg);
+    border-color: #f5c6cb;
+}
+
+/* Filter Form */
+.filter-container .form-inline .form-control {
+    margin-right: 8px;
+}
+
+/* Button Styles */
+.btn-primary {
+    background-color: var(--primary-color);
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.button-group button,
+button {
+    padding: 10px 20px;
+    margin: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.btn-danger{
+    color: var(--alert-error-color);
+}
+
+/* Table Styles */
+/* Ensure table is responsive */
+.table-responsive {
+    overflow-x: auto; /* Allow horizontal scrolling */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling for mobile devices */
+    margin-bottom: 20px; /* Add space below table */
+    white-space: nowrap;
+}
+
+/* Table Striped Rows */
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f9f9f9; /* Light gray color for odd rows */
+}
+
+/* Table Header */
+.table th,
+.table td {
+    padding: 12px;
+    border: 1px solid #ddd; /* Light gray border for cells */
+    text-align: left; /* Left-aligned text */
+    white-space: nowrap; /* Prevent wrapping for table content */
+    overflow: hidden; /* Prevent overflow */
+    text-overflow: ellipsis; /* Truncate with ellipsis if text overflows */
+}
+
+.table{
+    width: 100%;
+}
+
+.table-responsive table {
+    width: 100%;
+    table-layout: auto; /* Allow scrolling if needed */
+}
+
+.table-responsive.fixed-width table {
+    table-layout: fixed; /* Respect column widths */
+}
+
+/* Custom Scrollbar Styles for the .table-responsive container */
+.table-responsive::-webkit-scrollbar {
+    height: 8px; /* Set scrollbar height */
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background-color: #888; /* Thumb color */
+    border-radius: 10px; /* Rounded thumb */
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background-color: #f1f1f1; /* Track background color */
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background-color: #555; /* Darker thumb color on hover */
+}
+
+.profile-picture {
+    width: 100px;
+    height: 100px;
+}
+
+@media (max-width: 768px) {
+    .profile-picture {
+        width: 50px;
+        height: 50px;
+    }
+}
+
+/* Circle Button with Tooltip */
+.circle-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+}
+
+.tooltip-text {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: white;
+    text-align: center;
+    border-radius: 5px;
+    padding: 5px;
+    position: absolute;
+    bottom: 70px;
+    left: -130px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.circle-button:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content {
+    text-align: center;
+}
+
+.close:hover{
+    color: blue;
+}
+
+.close-btn {
+    position: absolute;
+    top: 0px;
+    right: 10px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    color: red;
+}
