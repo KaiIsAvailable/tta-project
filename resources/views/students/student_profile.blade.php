@@ -79,7 +79,7 @@
     </div>
     <div class="payment-container">
         <h1 class="text-left mb-4" style="display: inline;">{{ $students->name }}'s Payment</h1>
-        <form action="{{ route('payments.create') }}" method="GET" style="display: inline;">
+        <form action="{{ route('students.stillInProgress') }}" method="GET" style="display: inline;">
             <input type="hidden" name="student_id" value="{{ $students->student_id }}">
             <button type="submit" class="btn btn-danger btn-sm">Add Payment</button>
         </form>
