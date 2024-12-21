@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\classRoom;
+use App\Models\ClassRoom;
 use App\Models\ClassVenue;
 use Carbon\Carbon;
 
