@@ -4,7 +4,7 @@
     <div class="container">
         <h1><strong>Dashboard</strong></h1>
         @auth
-            <div>Welcome {{ Auth::user()->name }} to Tham's Taekwon-do Academy</div>
+            <div>Welcome {{ Auth::user()->name }} to Tham's Taekwon-do Academy system</div>
         @else
             <div>Welcome to Tham's Taekwon-do Academy</div>
         @endauth
