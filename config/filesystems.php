@@ -37,21 +37,14 @@ return [
             'throw' => false,
         ],
 
-        /*'public' => [
+        'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
             'throw' => false,
-        ],*/
-
-        'public' => [
-            'driver' => 'local',
-            'root' => 'C:/xampp/htdocs/dashboard/tta/public/image', // Use forward slashes
-            'url' => env('APP_URL').'/image', // The URL to access the image
-            'visibility' => 'public',
-            'throw' => false,
         ],
+
 
         's3' => [
             'driver' => 's3',
