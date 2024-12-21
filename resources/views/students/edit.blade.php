@@ -67,7 +67,7 @@
             <label for="profile_picture">Profile Picture:</label>
             @if ($student->profile_picture)
                 <div class="mb-2">
-                    <img src="{{ asset('storage/' . $student->profile_picture) }}" alt="Current Profile Picture" style="width:100px; height:100px; border-radius: 50%;">
+                    <img src="{{ asset('storage/' . $student->profile_picture) }}" alt="Current Profile Picture" style="width:100px; height:100px;">
                 </div>
             @endif
             <input type="file" name="profile_picture" class="form-control">

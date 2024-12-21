@@ -110,6 +110,8 @@ class StudentController extends Controller
         // Find the student by ID or fail if not found
         $student = Student::findOrFail($id);
 
+        $this->handleProfilePictureUpload($request, $student);
+        
         // Validate incoming request data
         $request->validate([
             'name' => 'required|string|max:255',
@@ -172,7 +174,6 @@ class StudentController extends Controller
         } else {
             return redirect()->back()->withErrors('Phone numbers, country codes, phone persons, and phone ids must match.');
         }
-
 
         $student->save();
 

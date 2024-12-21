@@ -72,7 +72,11 @@
                     @endif
                     <br>
                     <h5>Payment Setting:</h5>
-                    <p><strong>Start Date:</strong> {{ $students->student_startDate->format('d-M-Y') }}</p>
+                    @if(is_null($students->student_startDate))
+                        <p>No date found for this student.</p>
+                    @else
+                        <p><strong>Start Date:</strong> {{ $students->student_startDate->format('d-M-Y') }}</p>
+                    @endif
                 </div>
             </div>
         </div>
