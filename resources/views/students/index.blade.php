@@ -17,11 +17,11 @@
                 @endforeach
             </select>
 
-            <select name="centre_id" id="centre_id" class="form-control mr-2">
+            <select name="cv_id" id="cv_id" class="form-control mr-2">
                 <option value="">All Places</option>
-                @foreach($centres as $centre)
-                    <option value="{{ $centre->centre_id }}" {{ request('centre_id') == $centre->centre_id ? 'selected' : '' }}>
-                        {{ $centre->centre_name }}
+                @foreach($classVenue as $classVenues)
+                    <option value="{{ $classVenues->cv_id }}" {{ request('cv_id') == $classVenues->cv_id? 'selected' : '' }}>
+                        {{ $classVenues->cv_name }}
                     </option>
                 @endforeach
             </select>
@@ -49,9 +49,10 @@
                     <th>IC Number</th>
                     <th>HP Number</th>
                     <th>Fee</th>
-                    <th>Belt</th>
+                    <th>Grade</th>
                     <th>Centre</th>
                     <th>Class</th>
+                    <th>Class Venue</th>
                     <th>Start Date</th>
                 </tr>
             </thead>
@@ -103,6 +104,15 @@
                                     <li>{{ $class->class_day }} - {{ $class->class_start_time }} to {{ $class->class_end_time }}</li>
                                 @empty
                                     <li>No classes found for this student.</li>
+                                @endforelse
+                            </ul>
+                        </td>
+                        <td>
+                            <ul>
+                                @forelse ($student->classes as $class)
+                                    <li>{{ $class->venue ? $class->venue->cv_name : 'No Venue Assigned' }}</li>
+                                @empty
+                                    <li>No class venue found for this student</li>
                                 @endforelse
                             </ul>
                         </td>

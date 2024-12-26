@@ -66,7 +66,7 @@
                     @else
                         <ul>
                             @foreach($students->classes as $class)
-                                <li>{{ $class->class_day }} - {{ $class->class_start_time }} to {{ $class->class_end_time }}</li>
+                                <li>{{ $class->class_day }} - {{ $class->class_start_time }} to {{ $class->class_end_time }} ({{ $class->venue ? $class->venue->cv_name : 'No Venue Assigned' }})</li>
                             @endforeach
                         </ul>
                     @endif

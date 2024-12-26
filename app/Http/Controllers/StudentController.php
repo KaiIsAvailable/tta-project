@@ -6,6 +6,7 @@ use App\Models\Student; // Assuming you have a Student model
 use App\Models\Centre; // Import the Centre model
 use App\Models\CurrentBelt;
 use App\Models\ClassRoom;
+use App\Models\ClassVenue;
 use App\Models\Phone;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -17,13 +18,15 @@ class StudentController extends Controller
     public function index(Request $request)
     {
         // Get filter inputs from the request
-        $centreId = $request->get('centre_id');
+        $cvId = $request->get('cv_id');
         $name = $request->get('name');
         $beltId = $request->get('belt_id');
 
         // Retrieve students and apply filters
-        $students = Student::when($centreId, function ($query) use ($centreId) {
-                return $query->where('centre_id', $centreId);
+        $students = Student::when($cvId, function ($query) use ($cvId) {
+                return $query->whereHas('classes', function ($query) use ($cvId) {
+                    $query->where('cv_id', $cvId); // Filter by cv_id in the ClassRoom model
+                });
             })
             ->when($name, function ($query) use ($name) {
                 return $query->where('name', 'like', '%' . $name . '%');
@@ -31,15 +34,16 @@ class StudentController extends Controller
             ->when($beltId, function ($query) use ($beltId) {
                 return $query->where('belt_id', $beltId);
             })
-            //->get()
+            ->with(['classes.venue'])
             ->paginate(10);
 
         // Get all centres and belts for dropdown filters
-        $centres = Centre::all();
+        $classVenue = ClassVenue::all();
         $belts = CurrentBelt::all();
+        $class = ClassRoom::all();
 
         // Return the view with filtered students, centres, and belts
-        return view('students.index', compact('students', 'centres', 'belts'));
+        return view('students.index', compact('students', 'classVenue', 'belts', 'class'));
     }
 
 
