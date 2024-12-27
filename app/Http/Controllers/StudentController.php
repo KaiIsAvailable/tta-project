@@ -63,7 +63,7 @@ class StudentController extends Controller
 
         // Create a new student instance with validated data
         $student = new Student($validated);
-
+        
         $student->student_startDate = $request->startDate;
 
         $student->fee = $request->total_fee ?? 0;
