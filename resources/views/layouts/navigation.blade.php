@@ -1,6 +1,6 @@
 <head>
     <link rel="stylesheet" href="{{ asset('css/tailwind.css') }}">
-    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/form.css'])
+    <!--@vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/form.css'])-->
 </head>
 
 <nav x-data="{ open: false }" class="navigation">
