@@ -119,7 +119,7 @@ class StudentController extends Controller
         // Validate incoming request data
         $request->validate([
             'name' => 'required|string|max:255',
-            'ic_number' => 'required|regex:/^\d{6}-\d{2}-\d{4}$/',
+            'ic_number' => 'nullable|regex:/^\d{6}-\d{2}-\d{4}$/',
             'country_codes' => 'required',
             'hp_numbers' => 'array',  // Allow null values here; validate later if necessary
             'hp_numbers.*' => 'nullable|regex:/^\d{10,11}$/',
@@ -209,7 +209,7 @@ class StudentController extends Controller
     {
         return $request->validate([
             'name' => 'required|string|max:255',
-            'ic_number' => 'required|regex:/^\d{6}-\d{2}-\d{4}$/',
+            'ic_number' => 'nullable|regex:/^\d{6}-\d{2}-\d{4}$/',
             'hp_numbers' => 'required|array',
             'hp_numbers.*' => 'required|regex:/^\d{10,11}$/',
             'phone_persons' => 'required|array', 

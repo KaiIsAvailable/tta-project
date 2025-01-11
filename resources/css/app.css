@@ -41,6 +41,7 @@
 /* Filter Form */
 .filter-container .form-inline .form-control {
     margin-right: 8px;
+    width: 100%;
 }
 
 /* Button Styles */

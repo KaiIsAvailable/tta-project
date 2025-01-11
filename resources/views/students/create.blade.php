@@ -16,7 +16,7 @@
 
         <div>
             <label for="ic_number">IC Number:</label>
-            <input type="text" name="ic_number" class="form-control @error('ic_number') is-invalid @enderror" value="{{ old('ic_number') }}" required>
+            <input type="text" name="ic_number" class="form-control @error('ic_number') is-invalid @enderror" value="{{ old('ic_number') }}">
             @error('ic_number')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
