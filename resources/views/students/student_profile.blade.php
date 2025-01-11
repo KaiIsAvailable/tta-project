@@ -17,7 +17,7 @@
                 <div class="card-body">
                     <p>Student ID:{{ 'S' . sprintf('%05d',$students->student_id)}}</p>
                     @if($students->profile_picture)
-                        <img src="{{ asset('storage/' . $students->profile_picture) }}" alt="{{ $students->name }}" class="profile-pictures img-fluid rounded-circle">
+                        <img src="data:image/jpeg;base64,{{ base64_encode($students->profile_picture) }}" alt="{{ $students->name }}" class="profile-pictures img-fluid rounded-circle">
                     @else
                         <svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 50 50" style="border-radius: 50%;">
                             <circle cx="25" cy="25" r="25" fill="#ccc" />

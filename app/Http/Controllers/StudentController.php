@@ -236,20 +236,18 @@ class StudentController extends Controller
         ]);
     }
 
-    protected function handleProfilePictureUpload(Request $request, Student $student)
+    public function handleProfilePictureUpload(Request $request, Student $student)
     {
         if ($request->hasFile('profile_picture')) {
-            // Validate the file (make sure to adjust validation rules as needed)
-            $request->validate(['profile_picture' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048']);
-            
-            // Store the file in the public disk (this will save in the storage/app/public directory)
-            $path = $request->file('profile_picture')->store('profile_pictures', 'public');
-            
-            // Update the student's profile picture with the correct path
-            $student->profile_picture = $path;
+            // Get the uploaded file
+            $image = $request->file('profile_picture');
 
-            // Save the student to update the database with the new profile picture
-            $student->save(); // Ensure to call save to persist the changes
+            // Read the contents of the file as binary data
+            $imageData = file_get_contents($image->getRealPath());
+
+            // Save the binary data to the database
+            $student->profile_picture = $imageData;
+            $student->save();
         }
     }
 

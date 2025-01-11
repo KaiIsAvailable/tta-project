@@ -70,7 +70,7 @@
                         </td>
                         <td>
                             @if($student->profile_picture)
-                                <img src="{{ asset('storage/' . $student->profile_picture) }}" alt="{{ $student->name }}" class="profile-picture">
+                                <img src="data:image/jpeg;base64,{{ base64_encode($student->profile_picture) }}" alt="{{ $student->name }}" class="profile-picture">
                             @else
                                 <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50" style="border-radius: 50%;">
                                     <circle cx="25" cy="25" r="25" fill="#ccc" />
