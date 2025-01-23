@@ -24,7 +24,7 @@
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
         <!-- Scripts-->
-        <link href="{{ asset('build/assets/app-BFI1zxUb.css') }}" rel="stylesheet">
+        <link href="{{ asset('build/assets/app-DmrizgW5.css') }}" rel="stylesheet">
         <link href="{{ asset('build/assets/form-DV2xUjFA.css') }}" rel="stylesheet">
         <link href="{{ asset('build/assets/profile-nLKBpmhQ.css') }}" rel="stylesheet">
         <script src="{{ asset('build/assets/app-CUVUFkEO.js') }}"></script>
