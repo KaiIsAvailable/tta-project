@@ -1,5 +1,6 @@
 <?php
 namespace App\Http\Controllers;
+use App\Models\Payment;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Student;
 
@@ -13,8 +14,12 @@ class DashboardController extends Controller
         }
         // Get the total number of students
         $studentCount = Student::count();
+        $paidPaymentCount = Payment::where('payment_status', 'Paid')->count();
+        $unpaidPaymentCount = Payment::where('payment_status', 'Unpaid')->count();
+        $voidedPaymentCount = Payment::where('payment_status', 'Voided')->count();
 
-        // Pass the data to the dashboard view
-        return view('dashboard', compact('studentCount'));
+        return view('dashboard', compact(
+            'studentCount', 'voidedPaymentCount', 'paidPaymentCount', 'unpaidPaymentCount'
+        ));
     }
 }

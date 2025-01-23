@@ -71,6 +71,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('students/payments', [PaymentController::class, 'store'])->name('payments.store');
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
     Route::get('students/showProfile/{student_id}', [StudentController::class, 'showProfile'])->name('students.showProfile');
+    Route::get('students/{payment}/edit', [PaymentController::class, 'edit'])->name('payments.edit');
+    Route::put('/payments/{payment}', [PaymentController::class, 'update'])->name('payments.update');
+    Route::post('/payments/{payment}/void', [PaymentController::class, 'void'])->name('payments.void');
+    Route::get('/receipt/{paymentId}', [PaymentController::class, 'showReceipt'])->name('receipt.show');
+    Route::get('/invoice/{paymentId}', [PaymentController::class, 'showInvoice'])->name('invoice.show');
 
     //Coming Soon Page
     Route::get('/students/stillInProgress', [StudentController::class, 'stillInProgress'])->name('students.stillInProgress');

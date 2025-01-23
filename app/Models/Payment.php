@@ -29,6 +29,10 @@ class Payment extends Model
         'payment_method',
         'paid_for',
         'payment_status',
+        'payment_payAmt',
+        'payment_outstanding',
+        'payment_preAmt',
+        'payment_remark',
     ];
 
     // Optionally, define the cast types for your columns

@@ -67,7 +67,7 @@
             <label for="profile_picture">Profile Picture:</label>
             @if ($student->profile_picture)
                 <div class="mb-2">
-                    <img src="{{ asset('storage/' . $student->profile_picture) }}" alt="Current Profile Picture" style="width:100px; height:100px;">
+                    <img src="data:image/jpeg;base64,{{ base64_encode($student->profile_picture) }}" alt="{{ $student->name }}" style="width:100px; height:100px;">
                 </div>
             @endif
             <input type="file" name="profile_picture" class="form-control">
@@ -118,7 +118,7 @@
 
         <div class="form-group">
             <label for="payment_amount">Amount</label>
-            <input type="number" name="payment_amount" id="payment_amount" class="form-control" 
+            <input type="number" name="payment_amount" id="payment_amount" min="0" step="0.01" class="form-control" 
                 value="{{ old('payment_amount', $student->fee) }}" required>
             @error('payment_amount')
                 <div class="invalid-feedback">{{ $message }}</div>
@@ -165,7 +165,7 @@
                     <input type="text" id="phone_person" name="phone_person" required>
                     <br>
                     
-                    <button type="submit" class="btn btn-primary">Add Phone</button>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Add Phone</button>
                 </form>
             </div>
         </div>

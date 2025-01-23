@@ -8,7 +8,7 @@
     --alert-success-bg: #d4edda;
     --alert-success-color: #155724;
     --alert-error-bg: #f8d7da;
-    --alert-error-color: #8d0e1b;
+    --alert-error-color: #f8d7da;
     --padding-standard: 10px;
     --font-color: #000000;
 }
@@ -130,6 +130,12 @@ button {
     .profile-picture {
         width: 50px;
         height: 50px;
+    }
+}
+
+@media print {
+    .btn {
+        display: none; /* Hide buttons when printing */
     }
 }
 

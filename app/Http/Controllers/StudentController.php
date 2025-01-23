@@ -24,18 +24,19 @@ class StudentController extends Controller
 
         // Retrieve students and apply filters
         $students = Student::when($cvId, function ($query) use ($cvId) {
-                return $query->whereHas('classes', function ($query) use ($cvId) {
-                    $query->where('cv_id', $cvId); // Filter by cv_id in the ClassRoom model
-                });
-            })
-            ->when($name, function ($query) use ($name) {
-                return $query->where('name', 'like', '%' . $name . '%');
-            })
-            ->when($beltId, function ($query) use ($beltId) {
-                return $query->where('belt_id', $beltId);
-            })
-            ->with(['classes.venue'])
-            ->paginate(10);
+            return $query->whereHas('classes', function ($query) use ($cvId) {
+                $query->where('cv_id', $cvId); // Filter by cv_id in the ClassRoom model
+            });
+        })
+        ->when($name, function ($query) use ($name) {
+            return $query->where('name', 'like', '%' . $name . '%');
+        })
+        ->when($beltId, function ($query) use ($beltId) {
+            return $query->where('belt_id', $beltId);
+        })
+        ->with(['classes.venue'])
+        ->orderBy('belt_id', 'desc')
+        ->paginate(10);
 
         // Get all centres and belts for dropdown filters
         $classVenue = ClassVenue::all();
@@ -52,8 +53,9 @@ class StudentController extends Controller
         $belts = CurrentBelt::all();
         $centres = Centre::all();
         $classes = ClassRoom::all(); 
-        $today = Carbon::today()->format('Y-m-d'); // Get today's date
-        return view('students.create', compact('belts', 'centres', 'classes', 'today'));
+        $today = Carbon::today()->format('Y-m-d');
+        $firstDayOfMonth = Carbon::now()->startOfMonth()->format('Y-m-d'); // Get today's date
+        return view('students.create', compact('belts', 'centres', 'classes', 'today', 'firstDayOfMonth'));
     }
 
     public function store(Request $request)
@@ -253,11 +255,20 @@ class StudentController extends Controller
 
     public function showProfile($student_id)
     {
-        // Retrieve all students and filter by ID
-        $students = Student::with(['phone', 'belt', 'centre', 'classes'])->findOrFail($student_id);
+        session(['redirect_back' => 'students.showProfile']);
 
-        // Pass the students data to the view
-        return view('students.student_profile', compact('students'));
+        // Retrieve the student and their relationships
+        $students = Student::with(['phone', 'belt', 'centre', 'classes'])
+            ->findOrFail($student_id);
+
+        // Paginate payments
+        $payments = $students->payments()
+            ->where('payment_status', '!=', 'Voided') // Exclude voided payments
+            ->orderBy('payment_id', 'desc')
+            ->paginate(5);
+
+        // Pass data to the view
+        return view('students.student_profile', compact('students', 'payments'));
     }
 
     public function stillInProgress()

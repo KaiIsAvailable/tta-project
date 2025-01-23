@@ -79,7 +79,13 @@
                             @endif
                         </td>
                         <td>{{ $student->name }}</td>
-                        <td>{{ $student->ic_number }}</td>
+                        <td>
+                        @if ($student->ic_number)
+                            {{ $student->ic_number }}
+                        @else
+                            <span>N/A</span>
+                        @endif
+                        </td>
                         <td>
                             @foreach ($student->phone as $phone)
                                 <!-- Make the phone number clickable -->
@@ -90,7 +96,10 @@
                             @endforeach
                         </td>
                         <td>RM{{ $student->fee !== null ? $student->fee : 'Not Assigned' }}</td>
-                        <td>{{ $student->belt->BeltName }} ({{ $student->belt->BeltLevel }})</td>
+                        <td>
+                            {{ $student->belt->BeltName }} ({{ $student->belt->BeltLevel }})
+                            <img src="data:image/jpeg;base64,{{ base64_encode($student->belt->BeltImg) }}" alt="{{ $student->belt->BeltName }}" class="profile-picture" style="height: 150px; width: 50px;">
+                        </td>
                         <td>
                             @if($student->centre)
                                 {{ $student->centre->centre_name }} 

@@ -17,9 +17,9 @@
                 <div class="card-body">
                     <p>Student ID:{{ 'S' . sprintf('%05d',$students->student_id)}}</p>
                     @if($students->profile_picture)
-                        <img src="data:image/jpeg;base64,{{ base64_encode($students->profile_picture) }}" alt="{{ $students->name }}" class="profile-pictures img-fluid rounded-circle">
+                        <img src="data:image/jpeg;base64,{{ base64_encode($students->profile_picture) }}" alt="{{ $students->name }}" class="profile-pictures img-fluid">
                     @else
-                        <svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 50 50" style="border-radius: 50%;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 50 50" class="profile-pictures img-fluid">
                             <circle cx="25" cy="25" r="25" fill="#ccc" />
                             <text x="25" y="30" font-size="18" text-anchor="middle" fill="#555">?</text>
                         </svg>
@@ -55,9 +55,9 @@
             <div class="card mb-3">
                 <div class="card-body">
                     <h5>Additional Information:</h5>
-                    
+                    <img src="data:image/jpeg;base64,{{ base64_encode($students->belt->BeltImg) }}" alt="{{ $students->belt->BeltName }}" class="profile-picture" style="height: 150px; width: 50px; float: right;">
                     <p><strong>Fee:</strong> RM{{ $students->fee ?? 'Not Assigned' }}</p>
-                    <p><strong>Belt:</strong> {{ $students->belt ? $students->belt->BeltName : 'No belt assigned' }}</p>
+                    <p><strong>Belt:</strong> {{ $students->belt ? $students->belt->BeltName . ' (' . $students->belt->BeltLevel . ')' : 'No belt assigned' }}</p>
                     <p><strong>Centre:</strong> {{ $students->centre ? $students->centre->centre_name : 'No Centre Assigned' }}</p>
                     </br>
                     <h5>Class Schedule:</h5>
@@ -83,9 +83,12 @@
     </div>
     <div class="payment-container">
         <h1 class="text-left mb-4" style="display: inline;">{{ $students->name }}'s Payment</h1>
-        <form action="{{ route('students.stillInProgress') }}" method="GET" style="display: inline;">
+        <form action="{{ route('payments.store') }}" method="POST" style="display: inline;">
+            @csrf
             <input type="hidden" name="student_id" value="{{ $students->student_id }}">
-            <button type="submit" class="btn btn-danger btn-sm">Add Payment</button>
+            <input type="hidden" name="student_price" value="{{ $students->fee }}">
+            <input type="hidden" name="student_startDate" value="{{ $students->student_startDate }}">
+            <button type="submit" class="btn btn-primary btn-sm">Add Payment</button>
         </form>
         <div class="card mb-3">
         <div class="card-body">
@@ -97,29 +100,65 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>Action</th>
+                            <th>Option</th>
                             <th>Status</th>
                             <th>Payment Number</th>
-                            <th>Payment Made Date</th>
                             <th>Paid For</th>
                             <th>Amount</th>
+                            <th>Paid Amount</th>
+                            <th>Outstanding</th>
+                            <th>Pre Payment</th>
+                            <th>Payment Made Date</th>
                             <th>Method</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($students->payments as $payment)
+                        @foreach($payments as $payment)
                             <tr>
-                                <td></td>
+                                <td>
+                                    <div style="display: flex; gap: 10px;">
+                                        @if ($payment->payment_status == 'Unpaid')
+                                            <form action="{{ route('payments.edit', ['payment' => $payment->payment_id]) }}" method="GET">
+                                                @csrf
+                                                <button type="submit" class="btn btn-primary">Pay</button>
+                                            </form>
+                                        @endif
+                                        @if ($payment->payment_status == 'Paid')
+                                            <a href="{{ route('receipt.show', ['paymentId' => $payment->payment_id]) }}" title="Print Receipt">
+                                                <button type="submit" class="btn btn-primary btn-sm">Print Receipt</button>
+                                            </a>
+                                        @endif
+                                        <a href="{{ route('invoice.show', ['paymentId' => $payment->payment_id]) }}" title="Print Receipt">
+                                            <button type="submit" class="btn btn-primary btn-sm">Print Invoice</button>
+                                        </a>
+                                        <form action="{{ route('payments.void', ['payment' => $payment->payment_id]) }}" method="POST" style="display: inline;">
+                                            @csrf
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to void this payment?');">Void</button>
+                                        </form>
+                                    </div>
+                                </td>
                                 <td>{{ $payment->payment_status }}</td>
                                 <td>{{ 'P' . sprintf('%05d', $payment->payment_id) }}</td>
-                                <td>{{ $payment->payment_date->format('d-m-Y') }}</td>
-                                <td>{{ $payment->paid_for->format('F Y') }}</td>
+                                <td>{{ \Carbon\Carbon::parse($payment->paid_for)->format('F Y') }}</td>
                                 <td>RM{{ number_format($payment->payment_amount, 2) }}</td>
+                                <td>RM{{ number_format($payment->payment_payAmt, 2) }}</td>
+                                <td>RM{{ number_format($payment->payment_outstanding, 2) }}</td>
+                                <td>RM{{ number_format($payment->payment_preAmt, 2) }}</td>
+                                <td>
+                                    @if ($payment->payment_date)
+                                        {{ $payment->payment_date->format('d-m-Y') }}
+                                    @else
+                                        <span>N/A</span>
+                                    @endif
+                                </td>
                                 <td>{{ $payment->payment_method }}</td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+            <div class="pagination-links">
+                {{ $payments->links() }}
             </div>
             @endif
         </div>

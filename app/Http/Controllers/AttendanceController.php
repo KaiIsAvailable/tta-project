@@ -50,7 +50,7 @@ class AttendanceController extends Controller
     public function showAttendance(Request $request)
     {
         // Fetch centres from the database
-        $centres = Centre::all();
+        $classVenue = ClassVenue::all();
 
         // Get the selected date from the request or set a default
         $date = $request->input('filter.date', now()->format('Y-m-d')); // Default to today's date
@@ -64,38 +64,47 @@ class AttendanceController extends Controller
         $venues = Student::with('classes.venue')->get();
 
         // Return the view with the necessary data
-        return view('students.attendance', compact('centres', 'students', 'attendanceRecords', 'selectedDay', 'date', 'venues'));
+        return view('students.attendance', compact('classVenue', 'students', 'attendanceRecords', 'selectedDay', 'date', 'venues'));
     }
 
     // Handle the filtering of attendance
     public function filterAttendance(Request $request)
     {
         $date = $request->input('filter.date');
-        $centreId = $request->input('filter.centre_id');
+        $cvId = $request->input('filter.cv_id'); // Get Centre Venue ID
 
         // Determine the day of the week from the selected date
-        $selectedDay = \Carbon\Carbon::parse($date)->format('l'); // 'l' gives full textual representation of the day
+        $selectedDay = Carbon::parse($date)->format('l');
 
-        // Fetch all centres to display in the filter dropdown
-        $centres = Centre::all();
+        // Fetch all class venues for the dropdown
+        $classVenue = ClassVenue::all();
 
-        // Fetch students based on the selected centre
-        $studentsQuery = Student::with('classes');
+        // Query students with their classes and venues
+        $studentsQuery = Student::with(['classes.venue']);
 
-        if ($centreId) {
-            $studentsQuery->where('centre_id', $centreId); // Apply filtering by centre_id if selected
+        // Apply Centre Venue filtering if a venue is selected
+        if ($cvId) {
+            $studentsQuery->whereHas('classes.venue', function ($query) use ($cvId) {
+                $query->where('cv_id', $cvId);
+            });
         }
 
-        // Retrieve the filtered students
+        // Retrieve filtered students
         $students = $studentsQuery->get();
 
-        // Fetch attendance records for the selected date and key them by student_id
+        // Fetch attendance records for the selected date
         $attendanceRecords = Attendance::whereDate('attendance_date', $date)
                                         ->get()
                                         ->keyBy('student_id');
 
-        return view('students.attendance', compact('centres', 'students', 'attendanceRecords', 'selectedDay', 'date'));
+        if ($classVenue->isEmpty()) {
+            dd('No venues found in ClassVenue table');
+        }
+
+        // Pass variables to the view
+        return view('students.attendance', compact('classVenue', 'students', 'attendanceRecords', 'selectedDay', 'date'));
     }
+
     // Handle attendance update
     public function updateAttendance(Request $request)
     {

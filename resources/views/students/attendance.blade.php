@@ -19,10 +19,10 @@
             @csrf
             <input type="date" name="filter[date]" class="form-control mr-2" value="{{ old('filter.date', $date) }}">
             <select name="filter[centre_id]" class="form-control mr-2">
-                <option value="">Select Centre</option>
-                @foreach ($centres as $centre)
-                    <option value="{{ $centre->centre_id }}" {{ request('filter.centre_id') == $centre->centre_id ? 'selected' : '' }}>
-                        {{ $centre->centre_name }}
+            <option value="">Select Place</option>
+                @foreach ($classVenue as $venue)
+                    <option value="{{ $venue->cv_id }}" {{ request('filter.cv_id') == $venue->cv_id ? 'selected' : '' }}>
+                        {{ $venue->cv_name }}
                     </option>
                 @endforeach
             </select>
@@ -50,7 +50,7 @@
                 <tbody>
                     @if($students->isEmpty())
                         <tr>
-                            <td colspan="6" class="text-center">No students found for the selected date and day.</td>
+                            <td colspan="7" class="text-center">No students found for the selected date and day.</td>
                         </tr>
                     @else
                         @foreach ($students as $index => $student)
@@ -65,9 +65,9 @@
                                         <td>{{ $index + 1 }}</td>
                                         <td>
                                             @if($student->profile_picture)
-                                                <img src="{{ asset('storage/' . $student->profile_picture) }}" alt="{{ $student->name }}" class="profile-picture">
+                                            <img src="data:image/jpeg;base64,{{ base64_encode($student->profile_picture) }}" alt="{{ $student->name }}" class="profile-pictures img-fluid">
                                             @else
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50" style="border-radius: 50%;">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 50 50">
                                                     <circle cx="25" cy="25" r="25" fill="#ccc" />
                                                     <text x="25" y="30" font-size="18" text-anchor="middle" fill="#555">?</text>
                                                 </svg>

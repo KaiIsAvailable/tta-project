@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
+use Illuminate\Console\Scheduling\Schedule;
 
 class Kernel extends HttpKernel
 {
@@ -66,4 +67,10 @@ class Kernel extends HttpKernel
         // Registering your CheckRole middleware
         'role' => \App\Http\Middleware\CheckRole::class,
     ];
+
+    protected function schedule(Schedule $schedule)
+    {
+        // Schedule the command to run at midnight on the 1st of each month
+        $schedule->command('auto:add-payments')->monthlyOn(1, '00:00');
+    }
 }

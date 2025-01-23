@@ -1,5 +1,5 @@
 <head>
-    <link rel="stylesheet" href="{{ asset('css/tailwind.css') }}">
+    
     <!--@vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/form.css', 'resources/css/profile.css'])-->
 </head>
 
@@ -19,11 +19,9 @@
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     @auth
                         @if(Auth::user()->isStudent())
-                            <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                                {{ __('Dashboard') }}
-                            </x-nav-link>
+                            
                         @elseif(Auth::user()->isAdmin())
-                        <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                            <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                                 {{ __('Dashboard') }}
                             </x-nav-link>
                             <x-nav-link :href="route('students.index')" :active="request()->routeIs('students.index')">
@@ -35,9 +33,9 @@
                             <x-nav-link :href="route('students.attendance')" :active="request()->routeIs('students.attendance')">
                                 {{ __('Attendance') }}
                             </x-nav-link>
-                            <x-nav-link :href="route('students.stillInProgress')" :active="request()->routeIs('students.stillInProgress')">
+                            <x-nav-link :href="route('payments.index')" :active="request()->routeIs('payments.index')">
                                 {{ __('Payment') }}
-                            </x-nav-link><!--payments.index-->
+                            </x-nav-link><!--payments.index students.stillInProgress-->
                             <x-nav-link :href="route('students.stillInProgress')" :active="request()->routeIs('students.stillInProgress')">
                                 {{ __('Send Message') }}
                             </x-nav-link><!--student.message.index-->
@@ -122,9 +120,9 @@
                     <x-responsive-nav-link :href="route('students.attendance')" :active="request()->routeIs('students.attendance')">
                         {{ __('Attendance') }}
                     </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('students.stillInProgress')" :active="request()->routeIs('students.stillInProgress')">
+                    <x-responsive-nav-link :href="route('payments.index')" :active="request()->routeIs('payments.index')">
                         {{ __('Payment') }}
-                    </x-responsive-nav-link><!--payments.index-->
+                    </x-responsive-nav-link><!--payments.index students.stillInProgress-->
                     <x-responsive-nav-link :href="route('students.stillInProgress')" :active="request()->routeIs('students.stillInProgress')">
                         {{ __('Send Message') }}
                     </x-responsive-nav-link><!--student.message.index-->

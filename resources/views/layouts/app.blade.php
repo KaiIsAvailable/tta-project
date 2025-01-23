@@ -13,6 +13,9 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
         <!--<link href="{{ asset('css/app.css') }}" rel="stylesheet">-->
 
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+
         <link rel="icon" href="{{ asset('image/TTA logo.jpg') }}" type="image/x-icon">
         <title>TTA</title>
 
@@ -20,13 +23,11 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-        <!-- Scripts 
-        @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/form.css', 'resources/css/profile.css'])-->
-        <link href="{{ asset('build/assets/app-BEIEx8zi.css') }}" rel="stylesheet">
-        <link href="{{ asset('build/assets/form-BvuGV9cC.css') }}" rel="stylesheet">
+        <!-- Scripts-->
+        <link href="{{ asset('build/assets/app-BFI1zxUb.css') }}" rel="stylesheet">
+        <link href="{{ asset('build/assets/form-DV2xUjFA.css') }}" rel="stylesheet">
         <link href="{{ asset('build/assets/profile-nLKBpmhQ.css') }}" rel="stylesheet">
         <script src="{{ asset('build/assets/app-CUVUFkEO.js') }}"></script>
-
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-black-100">

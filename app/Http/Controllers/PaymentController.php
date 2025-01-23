@@ -6,6 +6,7 @@ use App\Models\Payment;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PaymentController extends Controller
 {
@@ -20,54 +21,208 @@ class PaymentController extends Controller
 
     public function store(Request $request)
     {
-        // Validate the incoming payment data
+        // Validate the incoming data
         $validated = $request->validate([
             'student_id' => 'required|exists:students,student_id',
-            'payment_amount' => 'required|numeric|min:0',
-            'payment_method' => 'required|string',
-            'paid_for' => [
-                'required',
-                'date_format:Y-m',
-                // Ensure the combination of student_id and paid_for is unique
-                function ($attribute, $value, $fail) use ($request) {
-                    // Retrieve student_id from the query string
-                    $exists = Payment::where('student_id', $request->student_id)
-                        ->where('paid_for', $value . '-01') // Adjusted the date format
-                        ->exists();
-                        
-                    // If a payment already exists for this student and month
-                    if ($exists) {
-                        $fail('The student already has a payment for ' . $value . '.');
-                    }
-                }
-            ],
+            'student_price' => 'required|numeric|min:0',
+            'student_startDate' => 'required|date'
         ]);
 
-        // Append "-01" to `paid_for` to make it a valid date format (YYYY-MM-DD)
-        $validated['paid_for'] = $validated['paid_for'] . '-01';
+        $studentId = $validated['student_id'];
+        $studentPrice = $validated['student_price'];
+        $studentStartDate = $validated['student_startDate'];
 
-        // Add the payment_date to the validated data
-        $validated['payment_date'] = now();
+        // Find the latest paid month for this student
+        $lastPayment = Payment::where('student_id', $studentId)
+            ->where('payment_status', '!=', 'Voided')
+            ->orderBy('paid_for', 'desc')
+            ->first();
 
-        // Store the payment record
-        Payment::create($validated);
+        // Calculate the next month
+        $nextMonth = $lastPayment
+            ? Carbon::parse($lastPayment->paid_for)->addMonth()->format('Y-m')
+            : Carbon::parse($studentStartDate)->format('Y-m'); // Default to the current month if no payments exist
 
-        // Redirect back to the student's profile with a success message
-        return redirect()->route('students.showProfile', $validated['student_id'])
-            ->with('success', 'Payment added successfully.');
+        // Create the payment record for the next month
+        Payment::create([
+            'student_id' => $studentId,
+            'payment_amount' => $studentPrice, // Default amount, adjust as needed
+            'payment_method' => 'N/A', // Default method, adjust as needed
+            'paid_for' => $nextMonth . '-01',
+            'payment_date' => null,
+        ]);
+
+        return redirect()->back()->with('success', 'Payment for ' . $nextMonth . ' added successfully.');
     }
 
-    // Show a list of all payments
-    public function index()
+    // Show a list of all payments in payment_index.blade the profile is in studentController
+    public function index(Request $request)
     {
-        $payments = Payment::with('student')->get(); // Eager load the student relationship
+        // Retrieve filter inputs from the request
+        $name = $request->get('name');
+        $paymentStatus = $request->get('payment_status');
+        $paidFor = $request->get('paid_for');
+
+        // Build the query with filters
+        $query = Payment::with('student')->orderBy('payment_id', 'desc');
+
+        // Apply filters conditionally
+        if ($name) {
+            $query->whereHas('student', function ($q) use ($name) {
+                $q->where('name', 'LIKE', "%$name%");
+            });
+        }
+
+        if ($paymentStatus) {
+            $query->where('payment_status', $paymentStatus);
+        }
+
+        if ($paidFor) {
+            $query->where('paid_for', 'LIKE', "$paidFor%");
+        }
+
+        // Paginate the filtered results
+        $payments = $query->paginate(10);
+
+        // Pass the results to the view
         return view('students.payments.payment_index', compact('payments'));
     }
 
     // Show a specific payment (optional)
     public function show($id)
     {
-        $payment = Payment::findOrFail($id);
-        return view('payments.show', compact('payment'));
+        // Fetch the student with payments ordered by 'paid_for'
+        $student = Student::findOrFail($id);
+
+        return view('students.show', compact('student', 'payments'));
+    }
+
+    public function edit($paymentId)
+    {
+        // Find the payment by ID
+        $payment = Payment::findOrFail($paymentId);
+
+        // Find the student associated with the payment
+        $student = $payment->student;  // Assuming you have a relationship set up
+
+        // Get the previous month
+        $previousMonth = Carbon::parse($payment->paid_for)->subMonth();
+
+        // Fetch the previous month's payment record for the same student
+        $previousPayment = Payment::where('student_id', $payment->student_id)
+            ->where('paid_for', $previousMonth)
+            ->first();
+
+        // Previous outstanding and pre-payment, default to 0 if no record exists
+        $previousOutstanding = $previousPayment ? $previousPayment->payment_outstanding : 0;
+        $previousPrePayment = $previousPayment ? $previousPayment->payment_preAmt : 0;
+
+        // Pass both payment and student data to the view
+        return view('students.payments.payment_update', compact('payment', 'student', 'previousOutstanding', 'previousPrePayment', 'previousMonth'));
+    }
+
+    public function update(Request $request, $paymentId)
+    {
+        // Validate the incoming data
+        $validated = $request->validate([
+            'payAmt' => 'required|numeric|min:0',
+            'payment_method' => 'required|string|max:255',
+            'paid_for' => 'required|date_format:Y-m',
+            'paid_date' => 'required|date',
+            'payment_amount' => 'required|numeric|min:0',
+            'total' => 'required|numeric',
+        ]);
+
+        if ($validated['payAmt'] == 0 && $validated['payment_method'] !== 'Pre Payment') {
+            return back()->withErrors(['payment_method' => 'If Pay Amount is 0, the payment method must be Pre Payment.'])
+                ->withInput();
+        }
+
+        // Find the payment record by ID
+        $payment = Payment::findOrFail($paymentId);
+
+        $payAmt = $validated['payAmt'];
+        $totalAmt = $validated['total'];
+        $outstanding = 0;
+        $preAmount = 0;
+
+        // Determine outstanding and preAmt
+        if ($payAmt < $totalAmt) {
+            $outstanding = $totalAmt - $payAmt;
+        }else{
+            $preAmount = $totalAmt - $payAmt;
+        }
+        
+        // Update the payment fields
+        $payment->update([
+            'payment_payAmt' => $validated['payAmt'],
+            'payment_method' => $validated['payment_method'],
+            'paid_for' => $validated['paid_for'],
+            'payment_status' => 'Paid',
+            'payment_date' => $validated['paid_date'],
+            'payment_outstanding' => $outstanding,
+            'payment_preAmt' => $preAmount,
+        ]);
+
+        //dd($request->all());
+
+        // Redirect to the student's profile page with a success message
+        return redirect()->route('students.showProfile', ['student_id' => $payment->student_id])
+                 ->with('success', 'Payment updated successfully.');
+    }
+
+    public function void(Request $request, $paymentId)
+    {
+        // Find the payment record by ID
+        $payment = Payment::findOrFail($paymentId);
+
+        // Update the payment fields
+        $payment->update([
+            'payment_status' => 'Voided'
+        ]);
+
+        // Redirect to the student's profile page with a success message
+        return redirect()->route('students.showProfile', ['student_id' => $payment->student_id])
+                 ->with('success', 'Payment updated successfully.');
+    }
+
+    public function showReceipt($paymentId)
+    {
+        // Fetch payment details
+        $payment = Payment::with(['student'])->findOrFail($paymentId);
+
+        // Get the previous month
+        $previousMonth = Carbon::parse($payment->paid_for)->subMonth();
+
+        // Fetch the previous month's payment record for the same student
+        $previousPayment = Payment::where('student_id', $payment->student_id)
+            ->where('paid_for', $previousMonth)
+            ->first();
+
+        // Previous outstanding and pre-payment, default to 0 if no record exists
+        $previousOutstanding = $previousPayment ? $previousPayment->payment_outstanding : 0;
+        $previousPrePayment = $previousPayment ? $previousPayment->payment_preAmt : 0;
+
+        return view('students.receipts.receipts', compact('payment', 'previousOutstanding', 'previousPrePayment', 'previousMonth'));
+    }
+
+    public function showInvoice($paymentId)
+    {
+        // Fetch payment details
+        $payment = Payment::with(['student'])->findOrFail($paymentId);
+
+        // Get the previous month
+        $previousMonth = Carbon::parse($payment->paid_for)->subMonth();
+
+        // Fetch the previous month's payment record for the same student
+        $previousPayment = Payment::where('student_id', $payment->student_id)
+            ->where('paid_for', $previousMonth)
+            ->first();
+
+        // Previous outstanding and pre-payment, default to 0 if no record exists
+        $previousOutstanding = $previousPayment ? $previousPayment->payment_outstanding : 0;
+        $previousPrePayment = $previousPayment ? $previousPayment->payment_preAmt : 0;
+
+        return view('students.invoices.invoices', compact('payment', 'previousOutstanding', 'previousPrePayment', 'previousMonth'));
     }
 }

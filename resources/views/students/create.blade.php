@@ -97,7 +97,7 @@
 
         <div>
             <label for="fee">Fee:</label>
-            <input type="text" name="total_fee" id="total_fee" class="form-control" value="0">
+            <input type="text" name="total_fee" id="total_fee" class="form-control" min="0" step="0.01" value="0">
             @error('fee')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
@@ -105,7 +105,7 @@
 
         <div>
             <label for="startDate">Payment Start Date:</label>
-            <input type="date" name="startDate" id="startDate" class="form-control" value="{{ $today }}">
+            <input type="date" name="startDate" id="startDate" class="form-control" value="{{ $firstDayOfMonth }}">
             @error('startDate')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
