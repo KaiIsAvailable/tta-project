@@ -28,6 +28,8 @@
         <link rel="stylesheet" href="{{ asset('build/assets/form-DV2xUjFA.css') }}">
         <link rel="stylesheet" href="{{ asset('build/assets/profile-nLKBpmhQ.css') }}">
         <script type="module" src="{{ asset('build/assets/app-CUVUFkEO.js') }}"></script>
+
+        <link rel="manifest" href="{{ asset('manifest.json') }}">
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-black-100">
