@@ -2,7 +2,10 @@
 
 @section('content')
 <div class="container py-4"> <!-- Added vertical padding to container -->
-    <h1 class="mb-4"><strong>Dashboard</strong></h1>
+    <div class="d-flex align-items-center justify-content-between">
+        <h1 class="mb-4"><strong>Dashboard</strong></h1>
+        <button id="installButton" class="btn btn-primary" style="display: none;">Install App</button>
+    </div>
 
     @auth
         <div class="mb-4">Welcome <strong>{{ Auth::user()->name }}</strong> to Tham's Taekwon-do Academy system!</div>
@@ -62,4 +65,46 @@
         </div>
     </div>
 </div>
+<script>
+    let deferredPrompt;
+
+    // Listen for the `beforeinstallprompt` event
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // Prevent the default mini-info bar from appearing
+        e.preventDefault();
+        // Save the event for later use
+        deferredPrompt = e;
+
+        // Enable the install button
+        const installButton = document.getElementById('installButton');
+        installButton.style.display = 'block';
+
+        installButton.addEventListener('click', async () => {
+            // Check if deferredPrompt is available
+            if (!deferredPrompt) return;
+
+            // Show the install prompt
+            deferredPrompt.prompt();
+
+            // Wait for the user's response
+            const { outcome } = await deferredPrompt.userChoice;
+
+            if (outcome === 'accepted') {
+                console.log('User accepted the installation');
+            } else {
+                console.log('User dismissed the installation');
+            }
+
+            // Reset the deferred prompt
+            deferredPrompt = null;
+        });
+    });
+
+    // Optionally, hide the button if the app is already installed
+    window.addEventListener('appinstalled', () => {
+        console.log('App was installed');
+        const installButton = document.getElementById('installButton');
+        installButton.style.display = 'none';
+    });
+</script>
 @endsection
