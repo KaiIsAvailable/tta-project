@@ -4,6 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+
         <!-- Include Select2 CSS -->
         <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" /> 
 
@@ -22,14 +23,6 @@
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-        @vite(['resources/css/app.css', 'resources/css/form.css', 'resources/css/profile.css', 'resources/js/app.js'])
-        <!--<link rel="stylesheet" href="{{ asset('build/assets/app-DmrizgW5.css') }}">
-        <link rel="stylesheet" href="{{ asset('build/assets/form-DV2xUjFA.css') }}">
-        <link rel="stylesheet" href="{{ asset('build/assets/profile-nLKBpmhQ.css') }}">
-        <script type="module" src="{{ asset('build/assets/app-CUVUFkEO.js') }}"></script>-->
-
-        <link rel="manifest" href="{{ asset('manifest.json') }}">
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-black-100">
