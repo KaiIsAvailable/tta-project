@@ -94,7 +94,7 @@ class PaymentController extends Controller
         // Fetch the student with payments ordered by 'paid_for'
         $student = Student::findOrFail($id);
 
-        return view('students.show', compact('student', 'payments'));
+        return view('students.show', compact('student', 'payments', ));
     }
 
     public function edit($paymentId)
@@ -112,6 +112,11 @@ class PaymentController extends Controller
         $previousPayment = Payment::where('student_id', $payment->student_id)
             ->where('paid_for', $previousMonth)
             ->first();
+        
+        if ($previousPayment && $previousPayment->payment_status === 'Unpaid') {
+            // Redirect back with an error message
+            return redirect()->back()->withErrors(['error' => 'Previous month\'s payment is still unpaid.']);
+        }
 
         // Previous outstanding and pre-payment, default to 0 if no record exists
         $previousOutstanding = $previousPayment ? $previousPayment->payment_outstanding : 0;

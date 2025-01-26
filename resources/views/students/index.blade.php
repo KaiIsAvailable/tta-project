@@ -70,9 +70,9 @@
                         </td>
                         <td>
                             @if($student->profile_picture)
-                                <img src="data:image/jpeg;base64,{{ base64_encode($student->profile_picture) }}" alt="{{ $student->name }}" class="profile-picture">
+                                <img src="data:image/jpeg;base64,{{ base64_encode($student->profile_picture) }}" alt="{{ $student->name }}" class="profile-picture" style="height: 150px !important; width: 150px !important; object-fit: cover;">
                             @else
-                                <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50" style="border-radius: 50%;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 50 50" class="profile-picture">
                                     <circle cx="25" cy="25" r="25" fill="#ccc" />
                                     <text x="25" y="30" font-size="18" text-anchor="middle" fill="#555">?</text>
                                 </svg>
@@ -98,7 +98,7 @@
                         <td>RM{{ $student->fee !== null ? $student->fee : 'Not Assigned' }}</td>
                         <td>
                             {{ $student->belt->BeltName }} ({{ $student->belt->BeltLevel }})
-                            <img src="data:image/jpeg;base64,{{ base64_encode($student->belt->BeltImg) }}" alt="{{ $student->belt->BeltName }}" class="profile-picture" style="height: 150px; width: 50px;">
+                            <img src="data:image/jpeg;base64,{{ base64_encode($student->belt->BeltImg) }}" alt="{{ $student->belt->BeltName }}" class="grade" style="height: 150px; width: 50px;">
                         </td>
                         <td>
                             @if($student->centre)
@@ -147,7 +147,7 @@
         </a>
         <span class="tooltip-text">Add User</span> <!-- Custom tooltip text -->
     </div>
-
+    <br>
     <div class="pagination-wrapper">
         {{ $students->links() }}
     </div>

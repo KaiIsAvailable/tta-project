@@ -43,7 +43,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/students/update/{student_id}', [StudentController::class, 'update'])->name('students.update');
     Route::delete('/students/destroy/{student}', [StudentController::class, 'destroy'])->name('students.destroy');
     Route::get('/students/{id}/classes', [StudentController::class, 'getStudentClasses'])->name('students.classes');
-    Route::get('/students/showProfile/{student_id}', [StudentController::class, 'showProfile'])->name('students.show_profile');
+    Route::get('students/showProfile/{student_id}', [StudentController::class, 'showProfile'])->name('students.showProfile');
 
     // Attendance routes
     Route::get('students/attendance', [AttendanceController::class, 'showAttendance'])->name('students.attendance');
@@ -70,7 +70,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/students/payments/create', [PaymentController::class, 'create'])->name('payments.create');
     Route::post('students/payments', [PaymentController::class, 'store'])->name('payments.store');
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
-    Route::get('students/showProfile/{student_id}', [StudentController::class, 'showProfile'])->name('students.showProfile');
     Route::get('students/{payment}/edit', [PaymentController::class, 'edit'])->name('payments.edit');
     Route::put('/payments/{payment}', [PaymentController::class, 'update'])->name('payments.update');
     Route::post('/payments/{payment}/void', [PaymentController::class, 'void'])->name('payments.void');

@@ -7,6 +7,7 @@ use App\Models\Centre; // Import the Centre model
 use App\Models\CurrentBelt;
 use App\Models\ClassRoom;
 use App\Models\ClassVenue;
+use App\Models\Payment;
 use App\Models\Phone;
 use Illuminate\Http\Request;
 use Carbon\Carbon;

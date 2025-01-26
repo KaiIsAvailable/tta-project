@@ -121,9 +121,16 @@ button {
     background-color: #555; /* Darker thumb color on hover */
 }
 
+.table td .profile-picture {
+    min-width: 150px;
+    overflow: visible;
+    white-space: normal;
+}
+
 .profile-picture {
     width: 100px;
     height: 100px;
+    margin-top: 10px;
 }
 
 @media (max-width: 768px) {
