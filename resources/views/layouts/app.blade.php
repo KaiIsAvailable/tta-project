@@ -23,6 +23,8 @@
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        
+        @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/form.css', 'resources/css/profile.css'])
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-black-100">
