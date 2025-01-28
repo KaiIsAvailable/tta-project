@@ -27,12 +27,19 @@
 
         <div class="col-md-4 mb-4">
             <div class="card border-secondary">
-                <div class="card-header bg-light text-dark">Paid Payments</div>
+                <div class="card-header bg-light text-dark">Payments</div>
                 <div class="card-body py-4">
-                    <h5 class="card-title">{{ $paidPaymentCount }}</h5>
                     <div class="d-flex justify-content-between align-items-center">
-                        <p class="mb-0">Payments successfully completed.</p>
-                        <a href="{{ route('payments.index', ['payment_status' => 'Paid']) }}" class="btn btn-primary">View</a>
+                        <p class="mb-0"><strong>{{$paidPaymentCount}}</strong> Paid.</p>
+                        <a href="{{ route('payments.index', ['payment_status' => 'Paid']) }}" class="btn">View</a>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <p class="mb-0"><strong>{{$unpaidPaymentCount}}</strong> Unpaid.</p>
+                        <a href="{{ route('payments.index', ['payment_status' => 'Unpaid']) }}" class="btn">View</a>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <p class="mb-0"><strong>{{$voidedPaymentCount}}</strong> Voided.</p>
+                        <a href="{{ route('payments.index', ['payment_status' => 'Voided']) }}" class="btn">View</a>
                     </div>
                 </div>
             </div>
@@ -40,26 +47,18 @@
 
         <div class="col-md-4 mb-4">
             <div class="card border-secondary">
-                <div class="card-header bg-light text-dark">Unpaid Payments</div>
+                <div class="card-header bg-light text-dark">Daily Fees Colected</div>
                 <div class="card-body py-4">
-                    <h5 class="card-title">{{ $unpaidPaymentCount }}</h5>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <p class="mb-0">Payments not completed.</p>
-                        <a href="{{ route('payments.index', ['payment_status' => 'Unpaid']) }}" class="btn btn-primary">View</a>
-                    </div>
+                    
                 </div>
             </div>
         </div>
 
         <div class="col-md-4 mb-4">
             <div class="card border-secondary">
-                <div class="card-header bg-light text-dark">Voided Payments</div>
+                <div class="card-header bg-light text-dark">Montly Fee Collected</div>
                 <div class="card-body py-4">
-                    <h5 class="card-title">{{ $voidedPaymentCount }}</h5>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <p class="mb-0">Payments that have been voided.</p>
-                        <a href="{{ route('payments.index', ['payment_status' => 'Voided']) }}" class="btn btn-primary">View</a>
-                    </div>
+                   
                 </div>
             </div>
         </div>
