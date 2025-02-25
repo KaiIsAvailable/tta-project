@@ -1,6 +1,13 @@
 @extends('layouts.app')
 @section('content')
 <div class="container">
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
     <div class="table-responsive">
             <table class="table table-striped">
                 <thead>
@@ -10,8 +17,9 @@
                         <th>Class Day</th>
                         <th>Class Time</th>
                         <th>Class Price</th>
-                        <th>Class Name</th>
-                        <th>Class Vanue</th>
+                        <th>Class Venue</th>
+                        <th>Class State</th>
+                        <th>Instructor</th>
                         <th>Location Link</th>
                     </tr>
                 </thead>
@@ -38,6 +46,11 @@
                             <td>{{ $classes->class_price}}</td>
                             <td>{{ $classes->venue->cv_name}}</td>
                             <td>{{ $classes->venue->cv_state}}</td>
+                            <td>
+                                @foreach($classes->instructors as $instructor)
+                                    {{ $instructor->name }}<br>
+                                @endforeach
+                            </td>
                             <td><a href="{{ $classes->venue->cv_location_link}}" target="_blank">{{ $classes->venue->cv_location_link}}</a></td>
                         </tr>
                     @endforeach 

@@ -4,48 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use App\Models\Student;
-use App\Models\Centre;
 use App\Models\ClassVenue;
-use App\Models\ClassRoom;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class AttendanceController extends Controller
-{
-    public function retrieveAttendance(Request $request)
-    {
-        // Get the selected date and centre from the request
-        $date = $request->input('filter.date');
-        $centreId = $request->input('filter.centre_id');
-
-        // Validate the date input
-        if (!$date) {
-            return redirect()->back()->with('error', 'Attendance date is required.');
-        }
-
-        // Convert the date to a day format (e.g., Monday, Tuesday)
-        $selectedDay = Carbon::parse($date)->format('l');
-
-        // Fetch all centres (for filtering)
-        $centres = Centre::all();
-
-        // Query to get students associated with the selected centre
-        $studentsQuery = Student::with('classes');
-
-        if ($centreId) {
-            $studentsQuery->where('centre_id', $centreId);
-        }
-
-        $students = $studentsQuery->get();
-
-        // Retrieve attendance records for the selected date
-        $attendanceRecords = Attendance::where('attendance_date', $date)->get()->keyBy('student_id');
-
-        // Pass the data to the view
-        return view('students.attendance', compact('students', 'attendanceRecords', 'date', 'selectedDay', 'centres'));
-    }
-
+{ 
     // Show attendance view
     public function showAttendance(Request $request)
     {
@@ -58,8 +23,21 @@ class AttendanceController extends Controller
         // Calculate the selected day based on the date
         $selectedDay = Carbon::parse($date)->format('l'); // Get the full name of the day
 
+        $user = Auth::User();
+
         // Fetch students and attendance records as needed
-        $students = Student::all(); // Adjust this to your actual query
+        // Query students based on whether the user is an instructor
+        if ($user && $user->role === 'instructor') {
+            // Assuming an instructor has classes, and students are related via classes
+            $students = Student::whereHas('classes', function ($query) use ($user) {
+                $query->whereHas('instructors', function ($q) use ($user) {
+                    $q->where('user_id', $user->id); // Filter students based on instructor ID
+                });
+            })->get();
+        } else {
+            // If not an instructor, fetch all students
+            $students = Student::all();
+        }
         $attendanceRecords = Attendance::where('attendance_date', $date)->get(); // Example query
         $venues = Student::with('classes.venue')->get();
 
@@ -79,15 +57,46 @@ class AttendanceController extends Controller
         // Fetch all class venues for the dropdown
         $classVenue = ClassVenue::all();
 
-        // Query students with their classes and venues
-        $studentsQuery = Student::with(['classes.venue']);
+        // Get authenticated user
+        $user = Auth::user();
 
-        // Apply Centre Venue filtering if a venue is selected
-        if ($cvId) {
-            $studentsQuery->whereHas('classes.venue', function ($query) use ($cvId) {
+        // Start query for students with their filtered classes
+        $studentsQuery = Student::whereHas('classes', function ($query) use ($selectedDay, $cvId, $user) {
+            // Filter classes by day
+            $query->whereRaw("LOWER(TRIM(class_day)) = ?", [strtolower($selectedDay)]);
+
+            // ✅ Filter by Centre Venue if selected
+            if ($cvId) {
                 $query->where('cv_id', $cvId);
-            });
-        }
+            }
+
+            // ✅ Filter by Instructor if the user is an instructor
+            if ($user && $user->role === 'instructor') {
+                $query->whereHas('instructors', function ($subQuery) use ($user) {
+                    $subQuery->where('user_id', $user->id);
+                });
+            }
+        })->with([
+            'classes' => function ($query) use ($selectedDay, $cvId, $user) {
+                // Only load classes that match the criteria
+                $query->whereRaw("LOWER(TRIM(class_day)) = ?", [strtolower($selectedDay)]);
+
+                // ✅ Filter by Centre Venue if selected
+                if ($cvId) {
+                    $query->where('cv_id', $cvId);
+                }
+
+                // ✅ Filter classes by Instructor
+                if ($user && $user->role === 'instructor') {
+                    $query->whereHas('instructors', function ($subQuery) use ($user) {
+                        $subQuery->where('user_id', $user->id);
+                    });
+                }
+
+                // Load the venue relationship for the view
+                $query->with('venue');
+            }
+        ]);
 
         // Retrieve filtered students
         $students = $studentsQuery->get();
@@ -103,7 +112,7 @@ class AttendanceController extends Controller
 
         // Pass variables to the view
         return view('students.attendance', compact('classVenue', 'students', 'attendanceRecords', 'selectedDay', 'date'));
-    }
+    }    
 
     // Handle attendance update
     public function updateAttendance(Request $request)

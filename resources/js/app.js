@@ -42,40 +42,53 @@ $(document).ready(function() {
 
 //index.blade.php in students
 document.addEventListener("DOMContentLoaded", function() {
-    // Add event listeners to all phone number links for opening the modal
+    const modal = document.getElementById('phoneActionModal');
+    const closeButton = document.querySelector('.close-btn');
+    const callBtn = document.getElementById('callBtn');
+    const whatsappBtn = document.getElementById('whatsappBtn');
+
+    if (!modal || !closeButton || !callBtn || !whatsappBtn) {
+        console.error("Modal or buttons not found in the document.");
+        return;
+    }
+
+    // Add event listeners to all phone number links
     document.querySelectorAll('.phone-number-link').forEach(link => {
         link.addEventListener('click', function() {
             const phoneNumber = this.getAttribute('data-phone');
             const person = this.getAttribute('data-person');
 
-            // Update modal buttons with the correct phone number
-            document.getElementById('callBtn').setAttribute('onclick', `window.location.href = 'tel:${phoneNumber}'`);
-            document.getElementById('whatsappBtn').setAttribute('onclick', `window.open('https://wa.me/${phoneNumber}', '_blank')`);
-            
-            // Update the modal heading to show the person's name
-            document.querySelector('#phoneActionModal h3').textContent = `${person}`;
+            // Update buttons with phone number
+            callBtn.setAttribute('onclick', `window.location.href = 'tel:${phoneNumber}'`);
+            whatsappBtn.setAttribute('onclick', `window.open('https://wa.me/${phoneNumber}', '_blank')`);
+
+            // Update modal heading
+            modal.querySelector('h3').textContent = person;
 
             // Show the modal
-            document.getElementById('phoneActionModal').style.display = 'block';
+            modal.style.display = 'block';
         });
-        closeModal();
     });
 
-    // Add event listener to close the modal when the close button is clicked
-    document.querySelector('.close-btn').addEventListener('click', function() {
-        closeModal();
-    });
+    // Close modal when clicking the close button
+    closeButton.addEventListener('click', closeModal);
 
-    // Optional: Close the modal if the background is clicked
-    document.getElementById('phoneActionModal').addEventListener('click', function(event) {
-        if (event.target === this) {
+    // Close modal when clicking outside the modal content
+    modal.addEventListener('click', function(event) {
+        if (event.target === modal) {
             closeModal();
         }
     });
+
+    // Close modal after clicking call or WhatsApp
+    callBtn.addEventListener('click', closeModal);
+    whatsappBtn.addEventListener('click', closeModal);
 });
 
 // Function to close the modal
 function closeModal() {
-    document.getElementById('phoneActionModal').style.display = 'none';
+    const modal = document.getElementById('phoneActionModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
 }
-

@@ -55,4 +55,16 @@ class User extends Authenticatable
     {
         return $this->role === 'admin'; // Adjust the condition based on how you define an admin
     }
+
+    public function isInstructor()
+    {
+        return $this->role === 'instructor';
+    }
+
+    public function classes()
+    {
+        return $this->belongsToMany(classRoom::class, 'class_user', 'user_id', 'class_id');
+    }
+
+    use Notifiable;  // Make sure this is included!
 }

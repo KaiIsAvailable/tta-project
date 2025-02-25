@@ -63,6 +63,7 @@ button {
 
 .btn-danger{
     color: var(--alert-error-color);
+    text-decoration: none;
 }
 
 /* Table Styles */

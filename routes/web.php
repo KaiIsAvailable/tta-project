@@ -11,6 +11,7 @@ use App\Http\Controllers\PhoneController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 
 // Import the default auth routes provided by Laravel
 require __DIR__.'/auth.php';
@@ -30,10 +31,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Profile routes
-    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::get('/profile/{id}', [ProfileController::class, 'index'])->name('profile');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/update/{id}', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::patch('/profile/updateProfile/{id}', [ProfileController::class, 'updateProfile'])->name('profile.updateProfile');
 
     // Student routes
     Route::get('/students', [StudentController::class, 'index'])->name('students.index');
@@ -79,10 +81,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //Coming Soon Page
     Route::get('/students/stillInProgress', [StudentController::class, 'stillInProgress'])->name('students.stillInProgress');
 
-    // User management routes (for admins and approved users)
-    Route::middleware('role:admin,approvedUser')->group(function () {
-        Route::get('/users', [UserController::class, 'viewAllUsers'])->name('users');
-    });
+    //Show User
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('register', [UserController::class, 'showRegistrationForm'])->name('register');
+    Route::post('register', [UserController::class, 'register']);
 });
 
 // Home route (optional, depending on how you're using it)

@@ -23,12 +23,10 @@
         <button type="submit" class="btn btn-primary">Filter</button>
     </form>
 
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-
-    @if(session('error'))
-        <div class="alert alert-danger">{{ session('error') }}</div>
+    @if ($errors->has('error'))
+        <div class="alert alert-danger">
+            {{ $errors->first('error') }}
+        </div>
     @endif
 
     <!--Payment Table-->

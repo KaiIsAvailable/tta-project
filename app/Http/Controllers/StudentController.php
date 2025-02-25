@@ -7,47 +7,57 @@ use App\Models\Centre; // Import the Centre model
 use App\Models\CurrentBelt;
 use App\Models\ClassRoom;
 use App\Models\ClassVenue;
-use App\Models\Payment;
 use App\Models\Phone;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 
 class StudentController extends Controller
 {
     public function index(Request $request)
     {
+        // Get the logged-in user
+        $user = Auth::user();
+
         // Get filter inputs from the request
         $cvId = $request->get('cv_id');
         $name = $request->get('name');
         $beltId = $request->get('belt_id');
 
-        // Retrieve students and apply filters
-        $students = Student::when($cvId, function ($query) use ($cvId) {
-            return $query->whereHas('classes', function ($query) use ($cvId) {
-                $query->where('cv_id', $cvId); // Filter by cv_id in the ClassRoom model
-            });
-        })
-        ->when($name, function ($query) use ($name) {
-            return $query->where('name', 'like', '%' . $name . '%');
-        })
-        ->when($beltId, function ($query) use ($beltId) {
-            return $query->where('belt_id', $beltId);
-        })
-        ->with(['classes.venue'])
-        ->orderBy('belt_id', 'desc')
-        ->paginate(10);
+        // Start querying students
+        $students = Student::query()
+            ->when($user && $user->role === 'instructor', function ($query) use ($user) {
+                // Filter students based on the instructor's assigned classes
+                return $query->whereHas('classes', function ($query) use ($user) {
+                    $query->whereHas('instructors', function ($query) use ($user) {
+                        $query->where('user_id', $user->id); // Ensure it matches class_user table
+                    });
+                });
+            })
+            ->when($cvId, function ($query) use ($cvId) {
+                return $query->whereHas('classes', function ($query) use ($cvId) {
+                    $query->where('cv_id', $cvId);
+                });
+            })
+            ->when($name, function ($query) use ($name) {
+                return $query->where('name', 'like', '%' . $name . '%');
+            })
+            ->when($beltId, function ($query) use ($beltId) {
+                return $query->where('belt_id', $beltId);
+            })
+            ->with(['classes.venue'])
+            ->orderBy('belt_id', 'desc')
+            ->paginate(10);
 
         // Get all centres and belts for dropdown filters
         $classVenue = ClassVenue::all();
         $belts = CurrentBelt::all();
         $class = ClassRoom::all();
 
-        // Return the view with filtered students, centres, and belts
+        // Return the view with filtered students
         return view('students.index', compact('students', 'classVenue', 'belts', 'class'));
     }
-
 
     public function create()
     {

@@ -3,12 +3,14 @@
 @section('content')
 <div class="container">
     <h1 class="text-left mb-4" style="display: inline;">{{ $students->name }}'s Profile</h1>
-    <a href="{{ route('students.edit', $students->student_id) }}" class="btn btn-primary btn-sm">Edit</a>
-    <form action="{{ route('students.destroy', $students->student_id) }}" method="POST" style="display: inline;">
-        @csrf
-        @method('DELETE')
-        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this student?');">Delete</button>
-    </form>
+    @if (Auth::User()->isAdmin())
+        <a href="{{ route('students.edit', $students->student_id) }}" class="btn btn-primary btn-sm">Edit</a>
+        <form action="{{ route('students.destroy', $students->student_id) }}" method="POST" style="display: inline;">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this student?');">Delete</button>
+        </form>
+    @endif
     <div class="profile-container">
         <!-- Left Column (Profile Picture & Name) -->
         <div class="profile-left">
@@ -81,26 +83,35 @@
             </div>
         </div>
     </div>
-    <div class="payment-container">
-        <h1 class="text-left mb-4" style="display: inline;">{{ $students->name }}'s Payment</h1>
-        <form action="{{ route('payments.store') }}" method="POST" style="display: inline;">
-            @csrf
-            <input type="hidden" name="student_id" value="{{ $students->student_id }}">
-            <input type="hidden" name="student_price" value="{{ $students->fee }}">
-            <input type="hidden" name="student_startDate" value="{{ $students->student_startDate }}">
-            <button type="submit" class="btn btn-primary btn-sm">Add Payment</button>
-        </form>
+    <div class="payment-container" id="payment-container">
+        <h1 class="text-left mb-4" style="display: inline;"><strong>{{ $students->name }}'s Payment</strong></h1>
+        @if (Auth::User()->isAdmin())
+            <form action="{{ route('payments.store') }}" method="POST" style="display: inline;">
+                @csrf
+                <input type="hidden" name="student_id" value="{{ $students->student_id }}">
+                <input type="hidden" name="student_price" value="{{ $students->fee }}">
+                <input type="hidden" name="student_startDate" value="{{ $students->student_startDate }}">
+                <button type="submit" class="btn btn-primary btn-sm">Add Payment</button>
+            </form>
+        @endif
         <div class="card mb-3">
         <div class="card-body">
             <h5>Payment History:</h5>
             @if($students->payments->isEmpty())
                 <p>No payments found for this student.</p>
             @else
+            @if ($errors->has('error'))
+                <div class="alert alert-danger">
+                    {{ $errors->first('error') }}
+                </div>
+            @endif
             <div class="table-responsive">
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>Option</th>
+                            @if (Auth::User()->isAdmin())
+                                <th>Option</th>
+                            @endif
                             <th>Status</th>
                             <th>Payment Number</th>
                             <th>Paid For</th>
@@ -115,28 +126,30 @@
                     <tbody>
                         @foreach($payments as $payment)
                             <tr>
-                                <td>
-                                    <div style="display: flex; gap: 10px;">
-                                        @if ($payment->payment_status == 'Unpaid')
-                                            <form action="{{ route('payments.edit', ['payment' => $payment->payment_id]) }}" method="GET">
-                                                @csrf
-                                                <button type="submit" class="btn btn-primary">Pay</button>
-                                            </form>
-                                        @endif
-                                        @if ($payment->payment_status == 'Paid')
-                                            <a href="{{ route('receipt.show', ['paymentId' => $payment->payment_id]) }}" title="Print Receipt">
-                                                <button type="submit" class="btn btn-primary btn-sm">Print Receipt</button>
+                                @if (Auth::User()->isAdmin())
+                                    <td>
+                                        <div style="display: flex; gap: 10px;">
+                                            @if ($payment->payment_status == 'Unpaid')
+                                                <form action="{{ route('payments.edit', ['payment' => $payment->payment_id]) }}" method="GET">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-primary">Pay</button>
+                                                </form>
+                                            @endif
+                                            @if ($payment->payment_status == 'Paid')
+                                                <a href="{{ route('receipt.show', ['paymentId' => $payment->payment_id]) }}" title="Print Receipt">
+                                                    <button type="submit" class="btn btn-primary btn-sm">Print Receipt</button>
+                                                </a>
+                                            @endif
+                                            <a href="{{ route('invoice.show', ['paymentId' => $payment->payment_id]) }}" title="Print Receipt">
+                                                <button type="submit" class="btn btn-primary btn-sm">Print Invoice</button>
                                             </a>
-                                        @endif
-                                        <a href="{{ route('invoice.show', ['paymentId' => $payment->payment_id]) }}" title="Print Receipt">
-                                            <button type="submit" class="btn btn-primary btn-sm">Print Invoice</button>
-                                        </a>
-                                        <form action="{{ route('payments.void', ['payment' => $payment->payment_id]) }}" method="POST" style="display: inline;">
-                                            @csrf
-                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to void this payment?');">Void</button>
-                                        </form>
-                                    </div>
-                                </td>
+                                            <form action="{{ route('payments.void', ['payment' => $payment->payment_id]) }}" method="POST" style="display: inline;">
+                                                @csrf
+                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to void this payment?');">Void</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                @endif
                                 <td>{{ $payment->payment_status }}</td>
                                 <td>{{ 'P' . sprintf('%05d', $payment->payment_id) }}</td>
                                 <td>{{ \Carbon\Carbon::parse($payment->paid_for)->format('F Y') }}</td>

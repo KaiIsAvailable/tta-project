@@ -60,6 +60,21 @@
             </select>
         </div>
 
+        <div class="form-group">
+            <label for="instructors">Select Instructors:</label>
+            <select name="instructor_ids[]" class="form-control" multiple required id="classSelect">
+                @foreach ($instructors as $instructor)
+                    <option value="{{ $instructor->id }}" 
+                        {{ in_array($instructor->id, old('instructor_ids', [])) ? 'selected' : '' }}>
+                        {{ $instructor->name }}
+                    </option>
+                @endforeach
+            </select>
+            @error('instructor_ids')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
         <button type="submit" class="btn btn-primary">Create Class</button>
         <a href="{{ route('students.class.class_index') }}" class="btn btn-secondary">Cancel</a>
     </form>

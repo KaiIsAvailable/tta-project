@@ -8,12 +8,20 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        $user = Auth::user();
+
         // Check if the user is authenticated
         if (!Auth::check()) {
             return redirect()->route('login'); // Redirect to login if not authenticated
         }
         // Get the total number of students
-        $studentCount = Student::count();
+        if ($user->role === 'admin') {
+            $studentCount = Student::count();
+        } elseif ($user->role === 'instructor') {
+            $studentCount = 0;
+        } else {
+            $studentCount = 0;
+        }
         $paidPaymentCount = Payment::where('payment_status', 'Paid')->count();
         $unpaidPaymentCount = Payment::where('payment_status', 'Unpaid')->count();
         $voidedPaymentCount = Payment::where('payment_status', 'Voided')->count();

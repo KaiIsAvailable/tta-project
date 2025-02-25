@@ -8,33 +8,78 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use App\Models\User;
+use Illuminate\Validation\Rule;
+use Illuminate\Database\QueryException;
+use Illuminate\Validation\ValidationException;
 
 class ProfileController extends Controller
 {
     /**
      * Display the user's profile form.
      */
-    public function edit(Request $request): View
+    public function index(Request $request, $id)
     {
-        return view('user.profile', [
-            'user' => $request->user(), // Ensure this matches your authentication setup
-        ]);
+        // This could load the profile data for the logged-in user
+        $user = User::findOrFail($id); // assuming you're using authentication
+
+        return view('user.profile', compact('user')); // You can change the view name if necessary
+    }
+
+    public function edit(Request $request)
+    {
+        $id = $request->query('id');
+        $user = User::findOrFail($id); // Fetch user or return 404 if not found
+        return view('profile.edit', compact('user'));
     }
 
     /**
      * Update the user's profile information.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(ProfileUpdateRequest $request, $id)
     {
-        $request->user()->fill($request->validated());
+        $user = User::findOrFail($id);
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($id)],
+            'role' => 'required|string|in:admin,instructor,student',
+        ]);
+
+        try {
+            $user->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'role' => $request->role
+            ]);
+
+            return redirect()->route('user.profile', $id)->with('success', 'Profile updated successfully!');
+        } catch (QueryException $e) {
+            return back()->with('error', 'Database error: ' . $e->getMessage()); // Logs specific error
+        } catch (ValidationException $e) {
+            return back()->with('error', 'Validation error: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            return back()->with('error', 'Unexpected error: ' . $e->getMessage());
         }
+    }
 
-        $request->user()->save();
+    public function updateProfile(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($id)],
+            'role' => 'required|string|in:admin,instructor,student',
+        ]); 
+
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'role' => $request->role
+        ]);
+
+        return redirect()->route('profile', $id)->with('success', 'Profile updated successfully!');
     }
 
     /**

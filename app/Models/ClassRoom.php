@@ -26,4 +26,9 @@ class ClassRoom extends Model
     {
         return $this->belongsTo(ClassVenue::class, 'cv_id', 'cv_id');
     }
+
+    public function instructors()
+    {
+        return $this->belongsToMany(User::class, 'class_user', 'class_id', 'user_id');
+    }    
 }

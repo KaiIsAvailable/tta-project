@@ -13,6 +13,7 @@
         <div class="mb-4">Welcome to Tham's Taekwon-do Academy!</div>
     @endauth
 
+    @if(Auth::user()->isAdmin())
     <div class="row">
         <!-- Summary Cards -->
         <div class="col-md-4 mb-4">
@@ -63,7 +64,19 @@
             </div>
         </div>
     </div>
+    @elseif(Auth::user()->isInstructor())
+        <div class="col-md-4 mb-4">
+            <div class="card border-secondary">
+                <div class="card-header bg-light text-dark">Total Students</div>
+                <div class="card-body py-4"> <!-- Added padding to card body -->
+                    <h5 class="card-title">{{ $studentCount }}</h5>
+                    <p class="card-text">All enrolled students in the system.</p>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
+
 <script>
     let deferredPrompt;
 

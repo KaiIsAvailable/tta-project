@@ -19,7 +19,19 @@
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     @auth
                         @if(Auth::user()->isStudent())
-                            
+                            <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                                {{ __('Dashboard') }}
+                            </x-nav-link>
+                        @elseif(Auth::user()->isInstructor())
+                            <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                                {{ __('Dashboard') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('students.index')" :active="request()->routeIs('students.index')">
+                                {{ __('Student List') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('students.attendance')" :active="request()->routeIs('students.attendance')">
+                                {{ __('Attendance') }}
+                            </x-nav-link>
                         @elseif(Auth::user()->isAdmin())
                             <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                                 {{ __('Dashboard') }}
@@ -36,6 +48,9 @@
                             <x-nav-link :href="route('payments.index')" :active="request()->routeIs('payments.index')">
                                 {{ __('Payment') }}
                             </x-nav-link><!--payments.index students.stillInProgress-->
+                            <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
+                                {{ __('Users') }}
+                            </x-nav-link>
                             <x-nav-link :href="route('students.stillInProgress')" :active="request()->routeIs('students.stillInProgress')">
                                 {{ __('Send Message') }}
                             </x-nav-link><!--student.message.index-->
@@ -45,10 +60,11 @@
             </div>
 
             <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
+            <div x-data="{ open: false }" class="hidden sm:flex sm:items-center sm:ms-6">
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-black-500 bg-white hover:text-black-700 focus:outline-none transition ease-in-out duration-150">
+                        <button @click="open = ! open"
+                            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-black-500 bg-white hover:text-black-700 focus:outline-none transition ease-in-out duration-150">
                             @auth
                                 <div>{{ Auth::user()->name }}</div>
                             @else
@@ -65,7 +81,7 @@
 
                     <x-slot name="content">
                         @auth
-                            <x-dropdown-link :href="route('profile.edit')">
+                            <x-dropdown-link :href="route('profile', ['id' => Auth::user()->id])">
                                 {{ __('Profile') }}
                             </x-dropdown-link>
 
@@ -73,8 +89,7 @@
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <x-dropdown-link :href="route('logout')"
-                                        onclick="event.preventDefault();
-                                                    this.closest('form').submit();">
+                                        onclick="event.preventDefault(); this.closest('form').submit();">
                                     {{ __('Log Out') }}
                                 </x-dropdown-link>
                             </form>
@@ -107,10 +122,20 @@
                     <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.edit')">
-                        {{ __('Profile') }}
+                @elseif(Auth::user()->isInstructor())
+                    <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                        {{ __('Dashboard') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('students.index')" :active="request()->routeIs('students.index')">
+                        {{ __('Student List') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('students.attendance')" :active="request()->routeIs('students.attendance')">
+                        {{ __('Attendance') }}
                     </x-responsive-nav-link>
                 @elseif(Auth::user()->isAdmin())
+                    <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                        {{ __('Dashboard') }}
+                    </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('students.index')" :active="request()->routeIs('students.index')">
                         {{ __('Student List') }}
                     </x-responsive-nav-link>
@@ -123,6 +148,9 @@
                     <x-responsive-nav-link :href="route('payments.index')" :active="request()->routeIs('payments.index')">
                         {{ __('Payment') }}
                     </x-responsive-nav-link><!--payments.index students.stillInProgress-->
+                    <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
+                        {{ __('Users') }}
+                    </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('students.stillInProgress')" :active="request()->routeIs('students.stillInProgress')">
                         {{ __('Send Message') }}
                     </x-responsive-nav-link><!--student.message.index-->
@@ -143,7 +171,7 @@
 
             <div class="mt-3 space-y-1">
                 @auth
-                    <x-responsive-nav-link :href="route('profile.edit')">
+                    <x-responsive-nav-link :href="route('profile', ['id' => Auth::user()->id])">
                         {{ __('Profile') }}
                     </x-responsive-nav-link>
                 @endauth

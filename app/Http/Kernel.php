@@ -65,7 +65,8 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         
         // Registering your CheckRole middleware
-        'role' => \App\Http\Middleware\CheckRole::class,
+        'checkrole' => \App\Http\Middleware\CheckRole::class,
+        'role' => \App\Http\Middleware\RoleMiddleware::class,
     ];
 
     protected function schedule(Schedule $schedule)
