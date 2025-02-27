@@ -22,7 +22,7 @@ class ResetPassword extends Notification
      */
     public function via($notifiable)
     {
-        return ['mail'];  // This tells Laravel to send via email
+        return ['mail'];  // Send via email
     }
 
     /**
@@ -32,9 +32,10 @@ class ResetPassword extends Notification
     {
         return (new MailMessage)
             ->subject('Reset Your Password')
-            ->greeting("Hello, {$notifiable->name}!")
+            ->greeting('Hello, ' . $notifiable->name . '!')
             ->line('You are receiving this email because we received a password reset request for your account.')
-            ->action('Reset Password', url('/password/reset', $this->token))
+            ->action('Reset Password', url(config('app.url') . route('password.reset', ['token' => $this->token, 'email' => $notifiable->email], false))) // ✅ Fixes the reset link
+            ->line('This password reset link will expire in 60 minutes.')
             ->line('If you did not request a password reset, no further action is required.');
     }
 }
