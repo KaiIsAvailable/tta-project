@@ -72,7 +72,7 @@
                             </td>
                             <td>
                                 @if($student->profile_picture)
-                                    <img src="data:image/jpeg;base64,{{ base64_encode($student->profile_picture) }}" alt="{{ $student->name }}" class="profile-picture" style="height: 150px !important; width: 150px !important; object-fit: cover;">
+                                    <img src="data:image/jpeg;base64,{{ base64_encode($student->profile_picture) }}" alt="{{ $student->name }}" class="profile-picture" style="height: 150px !important; width: 150px !important; object-fit: cover;" loading="lazy">
                                 @else
                                     <svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 50 50" class="profile-picture">
                                         <circle cx="25" cy="25" r="25" fill="#ccc" />
