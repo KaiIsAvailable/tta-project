@@ -106,10 +106,6 @@ class AttendanceController extends Controller
                                         ->get()
                                         ->keyBy('student_id');
 
-        if ($classVenue->isEmpty()) {
-            dd('No venues found in ClassVenue table');
-        }
-
         // Pass variables to the view
         return view('students.attendance', compact('classVenue', 'students', 'attendanceRecords', 'selectedDay', 'date'));
     }    
