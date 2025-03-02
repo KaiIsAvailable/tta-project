@@ -63,7 +63,7 @@
             <div x-data="{ open: false }" class="hidden sm:flex sm:items-center sm:ms-6">
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
-                        <button @click="open = ! open"
+                        <button @click.stop="open = ! open"
                             class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-black-500 bg-white hover:text-black-700 focus:outline-none transition ease-in-out duration-150">
                             @auth
                                 <div>{{ Auth::user()->name }}</div>
