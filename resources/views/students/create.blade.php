@@ -47,6 +47,18 @@
 
         <div>
             <label for="profile_picture">Profile Picture:</label>
+            @php
+                $hasImage = session('profile_picture');
+                $imageSrc = $hasImage ? 'data:image/jpeg;base64,' . session('profile_picture') : '';
+            @endphp
+
+            <div class="mb-2">
+                <img id="previewImage"
+                    src="{{ $imageSrc }}"
+                    alt="Preview"
+                    class="img-preview"
+                    style="width:100px; height:150px; @if (!$hasImage) display: none; @endif">
+            </div>
             <input type="file" name="profile_picture" id="profile_picture" accept="image/*">
         </div>
 
@@ -136,6 +148,20 @@
     // Initial calculation (in case any classes are selected by default)
     $(document).ready(function() {
         calculateTotalFee();
+    });
+
+    document.getElementById('profile_picture').addEventListener('change', function (event) {
+        const input = event.target;
+        const preview = document.getElementById('previewImage');
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
     });
 </script>
 @endsection
