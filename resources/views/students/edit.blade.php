@@ -79,7 +79,7 @@
                     class="img-preview"
                     style="width:100px; height:150px; @if (!$hasImage) display: none; @endif">
             </div>
-            <input type="file" name="profile_picture" id="profile_picture" class="form-control">
+            <input type="file" name="profile_picture" id="profile_picture" accept="image/*" class="form-control">
         </div>
 
         <div class="form-group">
