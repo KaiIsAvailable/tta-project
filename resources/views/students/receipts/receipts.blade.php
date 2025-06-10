@@ -96,7 +96,7 @@
                     <!-- Right (Sign and Image) -->
                     <div style="text-align: right;">
                         <p style="margin-right: 30px;">Sign:</p>
-                        <img src="{{ asset('image/shimouSign.png') }}" alt="TTA Logo" style="height:100px; width: 100px; margin-top: 5px;">
+                        <img src="{{ asset('image/shimouSign.png') }}" alt="sign" style="height:100px; width: 100px; margin-top: 5px;">
                     </div>
                 </div>
             </div>

@@ -34,7 +34,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile/{id}', [ProfileController::class, 'index'])->name('profile');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile/update/{id}', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::delete('/profile/destory/{user}', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::patch('/profile/updateProfile/{id}', [ProfileController::class, 'updateProfile'])->name('profile.updateProfile');
 
     // Student routes

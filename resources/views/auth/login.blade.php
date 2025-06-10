@@ -45,11 +45,11 @@
             </x-primary-button>
         </div>
 
-        <!--<div class="flex items-center justify-center mt-2">
+        <div class="flex items-center justify-center mt-2">
             <span class="text-sm text-black-600">{{ __("Don't have an account?") }}</span>
             <a class="underline text-sm text-black-600  hover:text-black-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ms-2" href="{{ route('register') }}">
                 {{ __('Sign up') }}
             </a>
-        </div>-->
+        </div>
     </form>
 </x-guest-layout>

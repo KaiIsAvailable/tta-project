@@ -2,13 +2,21 @@
 @section('title', 'User Profile')
 @section('content')
 
+@if (!auth()->user()->isAdmin() && auth()->user()->id !== $user->id)
+    <script>
+        window.location.href = "{{ route('dashboard') }}";
+    </script>
+@endif
+
 <div class="container">
     <h1 class="text-left mb-4" style="display: inline;">{{ $user->name }}'s Profile</h1>
-    <form method="POST" action="{{ route('profile.destroy') }}" style="display: inline;">
-        @csrf
-        @method('DELETE')
-        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete your account?');">Delete</button>
-    </form>
+    @if (auth()->user()->isAdmin())
+        <form method="POST" action="{{ route('profile.destroy', $user->id) }}" style="display: inline;">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete your account?');">Delete</button>
+        </form>
+    @endif
     @if (session('success'))
         <div class="alert alert-success">
             {{ session('success') }}

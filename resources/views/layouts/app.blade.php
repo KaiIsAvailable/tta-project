@@ -28,7 +28,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.0/dist/cdn.min.js" defer></script>
 
-        @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/form.css', 'resources/css/profile.css'])
+        @vite(['resources/css/app.css', 'resources/css/form.css', 'resources/css/profile.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-black-100">

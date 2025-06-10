@@ -67,6 +67,7 @@
                             <tr>
                                 <th>#</th>
                                 <th style="width: 160px;">Student</th>
+                                <th>Grade</th>
                                 <th>Status</th>
                                 <th>Reason</th>
                             </tr>
@@ -92,6 +93,7 @@
                                             </svg>
                                         @endif
                                     </td>
+                                    <td>{{ $student-> }}</td>
                                     <td>
                                         <label>
                                             <input type="checkbox" name="attendance[{{ $student->student_id }}][present]" value="1"

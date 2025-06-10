@@ -1,5 +1,9 @@
 @extends('layouts.app')
-
+@if (!Auth::User()->isAdmin())
+    <script>
+        window.location.href = "{{ route('dashboard') }}";
+    </script>
+@endif
 @section('content')
 <div class="container">
     <h1 class="text-left mb-4" style="display: inline;">{{ $students->name }}'s Profile</h1>

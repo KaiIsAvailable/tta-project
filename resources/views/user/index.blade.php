@@ -3,6 +3,11 @@
 @section('title', 'User List')
 
 @section('content')
+@if (!auth()->user()->isAdmin())
+    <script>
+        window.location.href = "{{ route('dashboard') }}";
+    </script>
+@endif
 <div class="container">
     <h2>User List</h2>
 

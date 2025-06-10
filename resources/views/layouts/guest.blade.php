@@ -20,7 +20,7 @@
             <div class="flex items-center justify-center mb-4">
                 <a class="flex items-center">
                     <img src="{{ asset('image/TTA logo.jpg') }}" alt="Your Logo" class="h-20 w-auto mr-2"> <!-- Adjust size as needed -->
-                    <span class="text-lg font-bold">THAM TAEKWONDO ACADEMY</span>
+                    <span class="text-lg font-bold">THAM'S TAEKWONDO ACADEMY</span>
                 </a>
             </div>
 

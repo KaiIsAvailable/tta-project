@@ -44,7 +44,6 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => $request->role === 'student' ? 'required|string|min:8|confirmed' : '', // Only required for students
             'role' => 'required|in:student,instructor,admin',
         ]);
 
@@ -57,11 +56,11 @@ class UserController extends Controller
         ]);
 
         // ✅ If role is Instructor or Admin, send password reset email
-        if (in_array($request->role, ['instructor', 'admin'])) {
+        if (in_array($request->role, ['instructor', 'admin', 'student'])) {
             Password::sendResetLink(['email' => $user->email]);
         }
 
-        return redirect('/users')->with('success', 'User registered successfully!');
+        return redirect('/users')->with('success', 'User registered successfully! An Email have sent to ' . $user->name);
     }
 
     // Show user profile
@@ -70,7 +69,7 @@ class UserController extends Controller
         $user = Auth::user();
 
         // Only allow 'admin' and 'approvedUser' roles to view this page
-        if ($user->role !== 'admin' && $user->role !== 'approvedUser') {
+        if ($user->role !== 'admin') {
             abort(403, 'Unauthorized action.');
         }
 
@@ -83,7 +82,7 @@ class UserController extends Controller
         $user = Auth::user();
 
         // Check if user is an admin or approved user
-        if ($user->role !== 'admin' && $user->role !== 'approvedUser') {
+        if ($user->role !== 'admin') {
             abort(403, 'Unauthorized action.');
         }
 
