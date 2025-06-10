@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Payment;
 use App\Models\Student;
+use App\Models\PaymentSetting;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -195,6 +196,7 @@ class PaymentController extends Controller
     {
         // Fetch payment details
         $payment = Payment::with(['student'])->findOrFail($paymentId);
+        $payment_setting = PaymentSetting::first();
 
         // Get the previous month
         $previousMonth = Carbon::parse($payment->paid_for)->subMonth();
@@ -208,7 +210,7 @@ class PaymentController extends Controller
         $previousOutstanding = $previousPayment ? $previousPayment->payment_outstanding : 0;
         $previousPrePayment = $previousPayment ? $previousPayment->payment_preAmt : 0;
 
-        return view('students.receipts.receipts', compact('payment', 'previousOutstanding', 'previousPrePayment', 'previousMonth'));
+        return view('students.receipts.receipts', compact('payment', 'previousOutstanding', 'previousPrePayment', 'previousMonth', 'payment_setting'));
     }
 
     public function showInvoice($paymentId)

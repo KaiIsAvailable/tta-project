@@ -96,7 +96,7 @@
                     <!-- Right (Sign and Image) -->
                     <div style="text-align: right;">
                         <p style="margin-right: 30px;">Sign:</p>
-                        <img src="{{ asset('image/shimouSign.png') }}" alt="sign" style="height:100px; width: 100px; margin-top: 5px;">
+                        <img src="data:image/jpeg;base64,{{ base64_encode($payment_setting->pSign) }}" alt="sign" style="height:100px; width: 100px; margin-top: 5px;" loading="lazy">
                     </div>
                 </div>
             </div>
