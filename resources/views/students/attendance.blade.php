@@ -93,7 +93,7 @@
                                             </svg>
                                         @endif
                                     </td>
-                                    <td>{{ $student-> }}</td>
+                                    <td></td>
                                     <td>
                                         <label>
                                             <input type="checkbox" name="attendance[{{ $student->student_id }}][present]" value="1"
