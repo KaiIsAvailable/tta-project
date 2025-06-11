@@ -7,7 +7,10 @@ use App\Models\Student;
 use App\Models\PaymentSetting;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Intervention\Image\ImageManager;
+use Illuminate\Support\Facades\Response;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\Encoders\PngEncoder;
 
 class PaymentController extends Controller
 {
@@ -196,7 +199,6 @@ class PaymentController extends Controller
     {
         // Fetch payment details
         $payment = Payment::with(['student'])->findOrFail($paymentId);
-        $payment_setting = PaymentSetting::first();
 
         // Get the previous month
         $previousMonth = Carbon::parse($payment->paid_for)->subMonth();
@@ -210,7 +212,7 @@ class PaymentController extends Controller
         $previousOutstanding = $previousPayment ? $previousPayment->payment_outstanding : 0;
         $previousPrePayment = $previousPayment ? $previousPayment->payment_preAmt : 0;
 
-        return view('students.receipts.receipts', compact('payment', 'previousOutstanding', 'previousPrePayment', 'previousMonth', 'payment_setting'));
+        return view('students.receipts.receipts', compact('payment', 'previousOutstanding', 'previousPrePayment', 'previousMonth'));
     }
 
     public function showInvoice($paymentId)
@@ -231,5 +233,53 @@ class PaymentController extends Controller
         $previousPrePayment = $previousPayment ? $previousPayment->payment_preAmt : 0;
 
         return view('students.invoices.invoices', compact('payment', 'previousOutstanding', 'previousPrePayment', 'previousMonth'));
+    }
+
+    /*public function showSignature()
+    {
+        $paymentSetting = PaymentSetting::first();
+
+        if (!$paymentSetting || !$paymentSetting->pSign) {
+            abort(404, 'Signature not found.');
+        }
+
+        $signature = $paymentSetting->pSign;
+
+        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+        $mime = $finfo->buffer($signature);
+
+        return response($signature)->header('Content-Type', $mime);
+    }*/
+    public function showSignature()
+    {
+        $paymentSetting = PaymentSetting::first();
+
+        if (!$paymentSetting || !$paymentSetting->pSign) {
+            abort(404, 'Signature not found.');
+        }
+
+        $signatureData = $paymentSetting->pSign;
+
+        // Load the image from binary blob
+        $manager = new ImageManager(new Driver());
+        $image = $manager->read($signatureData);
+
+        $width = $image->width();
+        $height = $image->height();
+
+        // Loop through the image and add watermark text
+        for ($y = 0; $y < $height; $y += 50) {
+            for ($x = 0; $x < $width; $x += 150) {
+                $image->text("Tham's Taekwon-Do Academy", $x, $y, function ($font) {
+                    $font->size(24);
+                    $font->color('rgba(103, 103, 103, 0.29)');
+                    $font->align('center');
+                    $font->angle(-45);
+                });
+            }
+        }
+
+        // Return image with proper content-type
+        return response($image->toJpeg(80))->header('Content-Type', 'image/jpeg');
     }
 }

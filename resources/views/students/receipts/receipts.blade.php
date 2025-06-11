@@ -2,7 +2,23 @@
 
 @section('content')
 <div class="container py-4">
-    <div class="card border-secondary" style="width: 210mm; margin: 0 auto;">
+    <div class="card border-secondary" style="width: 210mm; margin: 0 auto; position: relative; overflow: hidden;">
+        <!-- Watermark overlay 
+        <div style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0.1;
+            color: black;
+            font-size: 20px;
+            pointer-events: none;
+            z-index: 1;
+            text-align: center;
+        " class="watermark">
+            @for ($i = 0; $i < 18; $i++)
+            ---Tham's Taekwon-Do Academy--- ---Tham's Taekwon-Do Academy--- ---Tham's Taekwon-Do Academy--- ---Tham's Taekwon-Do Academy---
+            @endfor
+        </div>-->
         <div class="card-header text-center bg-light">
             <div class="d-flex align-items-center mb-4" style="gap: 20px;">
                 <!-- Logo Section -->
@@ -96,7 +112,7 @@
                     <!-- Right (Sign and Image) -->
                     <div style="text-align: right;">
                         <p style="margin-right: 30px;">Sign:</p>
-                        <img src="data:image/jpeg;base64,{{ base64_encode($payment_setting->pSign) }}" alt="sign" style="height:100px; width: 100px; margin-top: 5px;" loading="lazy">
+                        <img src="{{ route('signiture.show') }}" alt="sign" style="height:100px; width: 100px; margin-top: 5px;" loading="lazy">
                     </div>
                 </div>
             </div>
@@ -119,6 +135,9 @@
         /* Hide unnecessary parts of the page */
         .navigation, .card-footer{
             visibility: hidden;
+        }
+        .watermark{
+            display: none;
         }
     }
 </style>

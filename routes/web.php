@@ -77,6 +77,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/payments/{payment}/void', [PaymentController::class, 'void'])->name('payments.void');
     Route::get('/receipt/{paymentId}', [PaymentController::class, 'showReceipt'])->name('receipt.show');
     Route::get('/invoice/{paymentId}', [PaymentController::class, 'showInvoice'])->name('invoice.show');
+    Route::get('/secure-signature', [PaymentController::class, 'showSignature'])->name('signiture.show');
 
     //Coming Soon Page
     Route::get('/students/stillInProgress', [StudentController::class, 'stillInProgress'])->name('students.stillInProgress');

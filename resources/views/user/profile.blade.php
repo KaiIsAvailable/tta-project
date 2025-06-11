@@ -10,7 +10,7 @@
 
 <div class="container">
     <h1 class="text-left mb-4" style="display: inline;">{{ $user->name }}'s Profile</h1>
-    @if (auth()->user()->isAdmin())
+    @if (auth()->user()->isAdmin() && auth()->user()->id !== $user->id)
         <form method="POST" action="{{ route('profile.destroy', $user->id) }}" style="display: inline;">
             @csrf
             @method('DELETE')

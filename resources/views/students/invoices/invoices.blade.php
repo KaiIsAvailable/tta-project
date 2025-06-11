@@ -74,7 +74,7 @@
             <div class="text-right">
                 <div style="text-align: right;">
                     <p style="margin-right: 30px;">Sign:</p>
-                    <img src="{{ asset('image/shimouSign.png') }}" alt="TTA Logo" style="display: inline-block; height:100px; width: 100px; text-align: right;">
+                    <img src="{{ route('signiture.show') }}" alt="sign" style="display: inline-block; height:100px; width: 100px; margin-top: 5px; text-align: right;" loading="lazy">
                 </div>
             </div>
         </div>
