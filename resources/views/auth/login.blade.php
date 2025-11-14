@@ -2,6 +2,14 @@
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
+
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
@@ -47,9 +55,15 @@
 
         <div class="flex items-center justify-center mt-2">
             <span class="text-sm text-black-600">{{ __("Don't have an account?") }}</span>
-            <a class="underline text-sm text-black-600  hover:text-black-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ms-2" href="{{ route('register') }}">
+            <a class="underline text-sm text-black-600  hover:text-black-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ms-2" href="{{ route('userRegister') }}">
                 {{ __('Sign up') }}
             </a>
         </div>
     </form>
+    
+    <script>
+        setTimeout(function() {
+            location.reload(); // or redirect to /login again
+        }, 50000); // 50 seconds
+    </script>
 </x-guest-layout>

@@ -1,9 +1,16 @@
 @extends('layouts.app')
-@if (!Auth::User()->isAdmin())
+@if (!auth()->user()->isAdmin() && !auth()->user()->isInstructor() && !auth()->user()->isViewer())
     <script>
         window.location.href = "{{ route('dashboard') }}";
     </script>
 @endif
+<style>
+    .blur-text {
+        filter: blur(6px);
+        user-select: none;
+        pointer-events: none; /* Optional: block clicking */
+    }
+</style>
 @section('content')
 <div class="container">
     <h1 class="text-left mb-4" style="display: inline;">{{ $students->name }}'s Profile</h1>
@@ -23,15 +30,20 @@
                 <div class="card-body">
                     <p>Student ID:{{ 'S' . sprintf('%05d',$students->student_id)}}</p>
                     @if($students->profile_picture)
-                        <img src="data:image/jpeg;base64,{{ base64_encode($students->profile_picture) }}" alt="{{ $students->name }}" class="profile-pictures img-fluid">
+                        {{-- Student's profile picture from file path --}}
+                        <img src="{{ asset($students->profile_picture) }}" alt="{{ $students->name }}" class="profile-pictures img-fluid">
+                    @elseif($students->user && $students->user->images)
+                        {{-- User image from file path --}}
+                        <img src="{{ asset($students->user->images) }}" alt="{{ $students->name }}" class="profile-pictures img-fluid">
                     @else
+                        {{-- Default SVG avatar --}}
                         <svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 50 50" class="profile-pictures img-fluid">
                             <circle cx="25" cy="25" r="25" fill="#ccc" />
                             <text x="25" y="30" font-size="18" text-anchor="middle" fill="#555">?</text>
                         </svg>
                     @endif
                     <h3>{{ $students->name }}</h3>
-                    <p>{{ $students->ic_number }}</p>
+                    <p class="{{ auth()->user()->isViewer() ? 'blur-text' : '' }}" >{{ $students->ic_number }}</p>
                 </div>
             </div>
         </div>
@@ -48,7 +60,7 @@
                         @foreach ($students->phone as $phone)
                             <p>
                                 <strong>{{ $phone->phone_person }}:</strong>
-                                <a href="javascript:void(0)" class="phone-number-link" data-phone="{{$phone->country_code}}{{ $phone->phone_number }}" data-person="{{ $phone->phone_person }}">
+                                <a href="javascript:void(0)" class="phone-number-link {{ auth()->user()->isViewer() ? 'blur-text' : '' }}" data-phone="{{$phone->country_code}}{{ $phone->phone_number }}" data-person="{{ $phone->phone_person }}">
                                     {{ $phone->phone_number }}
                                 </a>
                             </p>

@@ -83,7 +83,7 @@
                                     <td>
                                         {{ $student->name }}
                                         @if($student->profile_picture)
-                                            <img src="data:image/jpeg;base64,{{ base64_encode($student->profile_picture) }}" 
+                                            <img src="{{ asset($student->profile_picture) }}" 
                                                 alt="{{ $student->name }}" height="150px" width="150px" 
                                                 class="profile-pictures img-fluid" loading="lazy">
                                         @else
@@ -93,7 +93,10 @@
                                             </svg>
                                         @endif
                                     </td>
-                                    <td></td>
+                                    <td>
+                                        {{ $student->belt->BeltName }} ({{ $student->belt->BeltLevel }})
+                                        <img src="data:image/jpeg;base64,{{ base64_encode($student->belt->BeltImg) }}" alt="{{ $student->belt->BeltName }}" class="grade" style="height: 150px; width: 50px;">
+                                    </td>
                                     <td>
                                         <label>
                                             <input type="checkbox" name="attendance[{{ $student->student_id }}][present]" value="1"
@@ -116,7 +119,9 @@
                     <br>
                 @endforeach
             </div>
-            <button type="submit" class="btn btn-primary">Submit Attendance</button>
+            @if (Auth::User()->isAdmin())
+                <button type="submit" class="btn btn-primary">Submit Attendance</button>
+            @endif
         </form>
     @endif
 </div>

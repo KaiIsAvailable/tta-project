@@ -7,6 +7,14 @@
         <button id="installButton" class="btn btn-primary" style="display: none;">Install App</button>
     </div>
 
+    @if (Auth::user()->isAdmnin)
+        @if ($hasPending || $hasNewRegister)
+            <div class="alert alert-success">
+                <p>You have new student registered. Please check who are they! <a href="{{ route('users.index') }}" style="color: red;">Click here to see who</a></p>
+            </div>
+        @endif
+    @endif
+
     @auth
         <div class="mb-4">Welcome <strong>{{ Auth::user()->name }}</strong> to Tham's Taekwon-do Academy system!</div>
     @else
@@ -74,6 +82,10 @@
                 </div>
             </div>
         </div>
+    @elseif(Auth::user()->isStudent())
+
+    @elseif(Auth::user()->isViewer())
+        <div class="mb-4">You are in demo account</div>
     @endif
 </div>
 

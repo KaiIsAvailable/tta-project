@@ -11,7 +11,7 @@ use App\Http\Controllers\PhoneController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\StudentDashboardController;
 
 // Import the default auth routes provided by Laravel
 require __DIR__.'/auth.php';
@@ -31,11 +31,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Profile routes
-    Route::get('/profile/{id}', [ProfileController::class, 'index'])->name('profile');
+    Route::post('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::get('/profiles', [ProfileController::class, 'viewProfile'])->name('profile.view');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile/update/{id}', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile/destory/{user}', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::patch('/profile/updateProfile/{id}', [ProfileController::class, 'updateProfile'])->name('profile.updateProfile');
+    Route::post('/profile/updateProfile', [ProfileController::class, 'updateProfile'])->name('profile.updateProfile');
 
     // Student routes
     Route::get('/students', [StudentController::class, 'index'])->name('students.index');
@@ -86,7 +87,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::get('register', [UserController::class, 'showRegistrationForm'])->name('register');
     Route::post('register', [UserController::class, 'register']);
+    Route::post('/user/{id}/approve', [UserController::class, 'approveUser'])->name('approveUser');
+    Route::post('/user/{id}/reject', [UserController::class, 'rejectUser'])->name('rejectUser');
 });
 
 // Home route (optional, depending on how you're using it)
+Route::get('userRegister', [UserController::class, 'showUserRegistrationForm'])->name('userRegister');
+Route::post('userRegister', [UserController::class, 'userRegister']);
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+

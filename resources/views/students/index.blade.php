@@ -1,11 +1,18 @@
 @extends('layouts.app')
 @section('title', 'Student List')
 @section('content')
-@if (!auth()->user()->isAdmin() && !auth()->user()->isInstructor())
+@if (!auth()->user()->isAdmin() && !auth()->user()->isInstructor() && !auth()->user()->isViewer())
     <script>
         window.location.href = "{{ route('dashboard') }}";
     </script>
 @endif
+<style>
+    .blur-text {
+        filter: blur(6px);
+        user-select: none;
+        pointer-events: none; /* Optional: block clicking */
+    }
+</style>
 <div class="container">
     <h2>Student List</h2>
     @if ($students->isEmpty())
@@ -76,10 +83,36 @@
                                 </div>
                             </td>
                             <td>
-                                @if($student->profile_picture)
+                                {{--@if($student->profile_picture)
                                     <img src="data:image/jpeg;base64,{{ base64_encode($student->profile_picture) }}" alt="{{ $student->name }}" class="profile-picture" style="height: 150px !important; width: 150px !important; object-fit: cover;" loading="lazy">
                                 @else
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" class="profile-picture">
+                                        <circle cx="25" cy="25" r="25" fill="#ccc" />
+                                        <text x="25" y="30" font-size="18" text-anchor="middle" fill="#555">?</text>
+                                    </svg>
+                                @endif--}}
+                                @if ($student->profile_picture)
+                                    {{-- Student's profile picture from file path --}}
+                                    <img src="{{ asset($student->profile_picture) }}"
+                                        alt="{{ $student->name }}"
+                                        class="profile-picture"
+                                        style="height: 150px; width: 150px; object-fit: cover;"
+                                        loading="lazy">
+                                
+                                @elseif ($student->user && $student->user->images)
+                                    {{-- User image from file path --}}
+                                    <img src="{{ asset($student->user->images) }}"
+                                        alt="{{ $student->name }}"
+                                        class="profile-picture"
+                                        style="height: 150px; width: 150px; object-fit: cover;"
+                                        loading="lazy">
+                                
+                                @else
+                                    {{-- Default SVG avatar --}}
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 50 50"
+                                        class="profile-picture"
+                                        style="height: 150px; width: 150px;">
                                         <circle cx="25" cy="25" r="25" fill="#ccc" />
                                         <text x="25" y="30" font-size="18" text-anchor="middle" fill="#555">?</text>
                                     </svg>
@@ -87,16 +120,21 @@
                             </td>
                             <td>{{ $student->name }}</td>
                             <td>
-                            @if ($student->ic_number)
-                                {{ $student->ic_number }}
-                            @else
-                                <span>N/A</span>
-                            @endif
-                            </td>
+                                @if ($student->ic_number)
+                                    <span class="{{ auth()->user()->isViewer() ? 'blur-text' : '' }}">
+                                        {{ $student->ic_number }}
+                                    </span>
+                                @else
+                                    <span>N/A</span>
+                                @endif
+                            </td>   
                             <td>
                                 @foreach ($student->phone as $phone)
-                                    <!-- Make the phone number clickable -->
-                                    <a href="javascript:void(0)" class="phone-number-link" data-phone="{{$phone->country_code}}{{ $phone->phone_number }}" data-person="{{ $phone->phone_person }}">
+                                    <a href="javascript:void(0)" 
+                                    class="{{ auth()->user()->isViewer() ? 'blur-text' : '' }}"
+                                    data-phone="{{ $phone->country_code }}{{ $phone->phone_number }}" 
+                                    data-person="{{ $phone->phone_person }}"
+                                    onclick="return false">
                                         {{ $phone->phone_person }}: {{ $phone->phone_number }}
                                     </a>
                                     <br>
@@ -152,7 +190,7 @@
                 style="width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; position: fixed; bottom: 20px; right: 20px; font-size: 24px; border-radius: 50%;">
                     +
                 </a>
-                <span class="tooltip-text">Add User</span> <!-- Custom tooltip text -->
+                <span class="tooltip-text">Add Student</span> <!-- Custom tooltip text -->
             </div>
         @endif
         <br>

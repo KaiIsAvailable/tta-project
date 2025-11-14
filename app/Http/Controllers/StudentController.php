@@ -8,6 +8,7 @@ use App\Models\CurrentBelt;
 use App\Models\ClassRoom;
 use App\Models\ClassVenue;
 use App\Models\Phone;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -46,7 +47,7 @@ class StudentController extends Controller
             ->when($beltId, function ($query) use ($beltId) {
                 return $query->where('belt_id', $beltId);
             })
-            ->with(['classes.venue'])
+            ->with(['classes.venue', 'user'])
             ->orderBy('belt_id', 'desc')
             ->paginate(10);
 
@@ -81,11 +82,11 @@ class StudentController extends Controller
 
         $student->fee = $request->total_fee ?? 0;
 
-        // Handle profile picture upload
-        $this->handleProfilePictureUpload($request, $student);
-
         // Save the student record first to generate student_id
         if ($student->save()) {
+            // Handle profile picture upload after student is saved
+            $this->handleProfilePictureUpload($request, $student);
+            $student->save(); // Save again to update profile picture path
             // Attach the classes to the student if class_id is provided
             if ($request->filled('class_id')) { // Use filled to check if the input exists and is not empty
                 // Ensure the input is an array
@@ -126,23 +127,21 @@ class StudentController extends Controller
     {
         // Find the student by ID or fail if not found
         $student = Student::findOrFail($id);
-
-        $this->handleProfilePictureUpload($request, $student);
         
         // Validate incoming request data
         $request->validate([
             'name' => 'required|string|max:255',
             'ic_number' => 'nullable|regex:/^\d{6}-\d{2}-\d{4}$/',
-            'country_codes' => 'required',
-            'hp_numbers' => 'array',  // Allow null values here; validate later if necessary
+            'country_codes' => 'nullable',
+            'hp_numbers' => 'nullable|array',  // Allow null values here; validate later if necessary
             'hp_numbers.*' => 'nullable|regex:/^\d{10,11}$/',
-            'phone_persons' => 'array',
+            'phone_persons' => 'nullable|array',
             'phone_persons.*' => 'nullable|string|max:255',
             'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'belt_id' => 'required|exists:current_belts,BeltID',
             'centre_id' => 'required|exists:student_centre,centre_id',
             'fee' => 'nullable|numeric|min:0',
-            'startDate' => 'required|date',
+            'startDate' => 'nullable|date',
         ]);
 
         // Update basic student information
@@ -192,6 +191,9 @@ class StudentController extends Controller
             return redirect()->back()->withErrors('Phone numbers, country codes, phone persons, and phone ids must match.');
         }
 
+        // Handle profile picture upload
+        $this->handleProfilePictureUpload($request, $student);
+        
         $student->save();
 
         // If you are using classes, sync them with the request input
@@ -206,6 +208,11 @@ class StudentController extends Controller
 
     public function destroy(Student $student)
     {
+        // Delete profile picture file if exists
+        if ($student->profile_picture && file_exists(public_path($student->profile_picture))) {
+            unlink(public_path($student->profile_picture));
+        }
+        
         // Delete related records in the pivot table (class_student)
         $student->classes()->detach();
 
@@ -223,10 +230,10 @@ class StudentController extends Controller
         return $request->validate([
             'name' => 'required|string|max:255',
             'ic_number' => 'nullable|regex:/^\d{6}-\d{2}-\d{4}$/',
-            'hp_numbers' => 'required|array',
-            'hp_numbers.*' => 'required|regex:/^\d{10,11}$/',
-            'phone_persons' => 'required|array', 
-            'phone_persons.*' => 'required|string|max:255',
+            'hp_numbers' => 'nullable|array',
+            'hp_numbers.*' => 'nullable|regex:/^\d{10,11}$/',
+            'phone_persons' => 'nullable|array', 
+            'phone_persons.*' => 'nullable|string|max:255',
             'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'belt_id' => 'required|exists:current_belts,BeltID',
             'centre_id' => 'required|exists:student_centre,centre_id',
@@ -252,16 +259,36 @@ class StudentController extends Controller
     public function handleProfilePictureUpload(Request $request, Student $student)
     {
         if ($request->hasFile('profile_picture')) {
-            // Get the uploaded file
-            $image = $request->file('profile_picture');
-
-            // Read the contents of the file as binary data
-            $imageData = file_get_contents($image->getRealPath());
-
-            // Save the binary data to the database
-            $student->profile_picture = $imageData;
-            $student->save();
+            try {
+                // Delete old profile picture if exists
+                if ($student->profile_picture && file_exists(public_path($student->profile_picture))) {
+                    unlink(public_path($student->profile_picture));
+                }
+                
+                $image = $request->file('profile_picture');
+                
+                // Generate unique filename
+                $studentId = $student->student_id ?? uniqid();
+                $filename = 'student_' . $studentId . '_' . time() . '.' . $image->getClientOriginalExtension();
+                
+                // Ensure directory exists
+                $uploadPath = public_path('storage/student_photos');
+                if (!file_exists($uploadPath)) {
+                    mkdir($uploadPath, 0755, true);
+                }
+                
+                // Move file to storage directory
+                $image->move($uploadPath, $filename);
+                
+                // Save file path to database
+                $student->profile_picture = 'storage/student_photos/' . $filename;
+                
+                return true;
+            } catch (\Exception $e) {
+                return false;
+            }
         }
+        return true;
     }
 
     public function showProfile($student_id)

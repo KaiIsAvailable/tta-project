@@ -7,8 +7,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Notifications\ResetPassword as CustomResetPassword;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable;
 
@@ -19,9 +20,12 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'images',
         'email',
         'password',
         'role',
+        'approve',
+        'student_id'
     ];
 
     /**
@@ -62,6 +66,11 @@ class User extends Authenticatable
         return $this->role === 'instructor';
     }
 
+    public function isViewer()
+    {
+        return $this->role === 'viewer';
+    }
+
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new CustomResetPassword($token)); // ✅ Use custom notification
@@ -69,6 +78,11 @@ class User extends Authenticatable
 
     public function classes()
     {
-        return $this->belongsToMany(classRoom::class, 'class_user', 'user_id', 'class_id');
+        return $this->belongsToMany(ClassRoom::class, 'class_user', 'user_id', 'class_id');
+    }
+
+    public function students()
+    {
+        return $this->belongsTo(Student::class, 'student_id', 'student_id');
     }
 }

@@ -31,13 +31,13 @@
                     <option value="+60" selected>+60</option>
                 </select>
 
-                <input type="text" name="hp_numbers[]" class="form-control @error('hp_numbers.*') is-invalid @enderror" value="{{ old('hp_numbers.0') }}" required>
+                <input type="text" name="hp_numbers[]" class="form-control @error('hp_numbers.*') is-invalid @enderror" value="{{ old('hp_numbers.0') }}">
                 @error('hp_numbers.*')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
 
                 <label for="hp_numbers">Contact Name:</label>
-                <input type="text" name="phone_persons[]" class="form-control mt-2 @error('phone_persons.*') is-invalid @enderror" value="{{ old('phone_persons.0') }}" required>
+                <input type="text" name="phone_persons[]" class="form-control mt-2 @error('phone_persons.*') is-invalid @enderror" value="{{ old('phone_persons.0') }}">
                 @error('phone_persons.*')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -47,17 +47,12 @@
 
         <div>
             <label for="profile_picture">Profile Picture:</label>
-            @php
-                $hasImage = session('profile_picture');
-                $imageSrc = $hasImage ? 'data:image/jpeg;base64,' . session('profile_picture') : '';
-            @endphp
-
             <div class="mb-2">
                 <img id="previewImage"
-                    src="{{ $imageSrc }}"
+                    src=""
                     alt="Preview"
                     class="img-preview"
-                    style="width:100px; height:150px; @if (!$hasImage) display: none; @endif">
+                    style="width:100px; height:150px; display: none;">
             </div>
             <input type="file" name="profile_picture" id="profile_picture" accept="image/*" class="form-control">
         </div>
@@ -80,7 +75,7 @@
         <div>
             <label for="centre_id">Centre:</label>
             <select name="centre_id" class="form-control @error('centre_id') is-invalid @enderror" required>
-                <option value="" disabled selected></option>
+                {{-- <option value="" disabled selected></option> --}}
                 @foreach($centres as $centre)
                     <option value="{{ $centre->centre_id }}" {{ old('centre_id') == $centre->centre_id ? 'selected' : '' }}>
                         {{ $centre->centre_name }}

@@ -65,19 +65,20 @@
 
         <div class="form-group">
             <label for="profile_picture">Profile Picture:</label>
-            @php
-                $hasImage = session('profile_picture') || $student->profile_picture;
-                $imageSrc = session('profile_picture')
-                    ? 'data:image/jpeg;base64,' . session('profile_picture')
-                    : ($student->profile_picture ? 'data:image/jpeg;base64,' . base64_encode($student->profile_picture) : '');
-            @endphp
-
             <div class="mb-2">
-                <img id="previewImage"
-                    src="{{ $imageSrc }}"
-                    alt="Preview"
-                    class="img-preview"
-                    style="width:100px; height:150px; @if (!$hasImage) display: none; @endif">
+                @if($student->profile_picture)
+                    <img id="previewImage"
+                        src="{{ asset($student->profile_picture) }}"
+                        alt="Preview"
+                        class="img-preview"
+                        style="width:100px; height:150px; object-fit: cover;">
+                @else
+                    <img id="previewImage"
+                        src=""
+                        alt="Preview"
+                        class="img-preview"
+                        style="width:100px; height:150px; object-fit: cover; display: none;">
+                @endif
             </div>
             <input type="file" name="profile_picture" id="profile_picture" accept="image/*" class="form-control">
         </div>
@@ -181,6 +182,21 @@
     </div>
 </div>
 <script>
+    // Image preview functionality
+    document.getElementById('profile_picture').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        const preview = document.getElementById('previewImage');
+        
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
     document.querySelectorAll('.remove-phone-btn').forEach(button => {
         button.addEventListener('click', function () {
             const deleteUrl = this.getAttribute('data-url'); // Get the URL for deletion

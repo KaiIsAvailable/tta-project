@@ -4,6 +4,7 @@ namespace App\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Facades\Log;
 
 class Kernel extends HttpKernel
 {
@@ -73,5 +74,6 @@ class Kernel extends HttpKernel
     {
         // Schedule the command to run at midnight on the 1st of each month
         $schedule->command('auto:add-payments')->monthlyOn(1, '00:00');
+        $schedule->command('queue:work --queue=emails')->everyMinute();
     }
 }

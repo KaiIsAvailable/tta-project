@@ -32,7 +32,7 @@
                             <x-nav-link :href="route('students.attendance')" :active="request()->routeIs('students.attendance')">
                                 {{ __('Attendance') }}
                             </x-nav-link>
-                        @elseif(Auth::user()->isAdmin())
+                        @elseif(Auth::user()->isAdmin() || Auth::user()->isViewer())
                             <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                                 {{ __('Dashboard') }}
                             </x-nav-link>
@@ -81,9 +81,16 @@
 
                     <x-slot name="content">
                         @auth
-                            <x-dropdown-link :href="route('profile', ['id' => Auth::user()->id])">
+                            {{--<x-dropdown-link :href="route('profile', ['id' => Auth::user()->id])">
                                 {{ __('Profile') }}
-                            </x-dropdown-link>
+                            </x-dropdown-link> --}}
+                            <form id="profile-form" method="POST" action="{{ route('profile') }}">
+                                @csrf
+                                <input type="hidden" name="id" value="{{ Auth::user()->id }}">
+                                <x-dropdown-link href="#" onclick="event.preventDefault(); document.getElementById('profile-form').submit();">
+                                    {{ __('Profile') }}
+                                </x-dropdown-link>
+                            </form>
 
                             <!-- Authentication -->
                             <form method="POST" action="{{ route('logout') }}">

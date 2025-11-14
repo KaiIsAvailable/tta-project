@@ -2,6 +2,7 @@
 
 @section('content')
 
+@include('components.loadingAction')
 <div class="form_container">   
     {{-- Display Validation Errors --}}
     @if ($errors->any())
@@ -49,9 +50,9 @@
             <label for="role">Role:</label>
             <select id="role" name="role" class="form-control @error('role') is-invalid @enderror" required>
                 <option value="">Select a role</option>
-                <option value="student" {{ old('role') == 'student' ? 'selected' : '' }}>Student</option>
                 <option value="instructor" {{ old('role') == 'instructor' ? 'selected' : '' }}>Instructor</option>
                 <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                <option value="viewer" {{ old('role') == 'viewer' ? 'selected' : '' }}>Viewer</option>
             </select>
 
             @error('role')

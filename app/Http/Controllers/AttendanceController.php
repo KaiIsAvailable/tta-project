@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Attendance;
 use App\Models\Student;
 use App\Models\ClassVenue;
+use App\Models\CurrentBelt;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -41,8 +42,11 @@ class AttendanceController extends Controller
         $attendanceRecords = Attendance::where('attendance_date', $date)->get(); // Example query
         $venues = Student::with('classes.venue')->get();
 
+        $beltId = $request->get('belt_id');
+        $belts = CurrentBelt::all();
+
         // Return the view with the necessary data
-        return view('students.attendance', compact('classVenue', 'students', 'attendanceRecords', 'selectedDay', 'date', 'venues'));
+        return view('students.attendance', compact('classVenue', 'students', 'attendanceRecords', 'selectedDay', 'date', 'venues', 'belts'));
     }
 
     // Handle the filtering of attendance

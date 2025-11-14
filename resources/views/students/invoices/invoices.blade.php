@@ -1,6 +1,13 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+    .blur-text {
+        filter: blur(6px);
+        user-select: none;
+        pointer-events: none; /* Optional: block clicking */
+    }
+</style>
 <div class="container py-4">
     <div class="card border-secondary" style="width: 210mm; margin: 0 auto;">
         <div class="card-header text-center bg-light">
@@ -14,10 +21,10 @@
                 <div style="text-align: left;">
                     <h3 class="mb-0" style="font-size: 30px;"><strong>Tham's Taekwon-Do Academy</strong></h3>
                     <!--<p class="mb-0">Reg No: 201601010552</p>-->
-                    <p class="mb-0">Address: No 14A, Kledang Permai 7,</p>
-                    <p class="mb-0">Taman Kledang Permai, Menglembu,</p>
-                    <p class="mb-0">31450 Ipoh, Perak</p>
-                    <p class="mb-0">Tel: 016-560 6092</p>
+                    <p class="mb-0 {{ auth()->user()->isViewer() ? 'blur-text' : '' }}">Address: No 14A, Kledang Permai 7,</p>
+                    <p class="mb-0 {{ auth()->user()->isViewer() ? 'blur-text' : '' }}">Taman Kledang Permai, Menglembu,</p>
+                    <p class="mb-0 {{ auth()->user()->isViewer() ? 'blur-text' : '' }}">31450 Ipoh, Perak</p>
+                    <p class="mb-0 {{ auth()->user()->isViewer() ? 'blur-text' : '' }}">Tel: 016-560 6092</p>
                 </div>
             </div>
             <h3 class="text-dark mt-3"><strong>INVOICE</strong></h3>
@@ -74,7 +81,7 @@
             <div class="text-right">
                 <div style="text-align: right;">
                     <p style="margin-right: 30px;">Sign:</p>
-                    <img src="{{ route('signiture.show') }}" alt="sign" style="display: inline-block; height:100px; width: 100px; margin-top: 5px; text-align: right;" loading="lazy">
+                    <img class="{{ auth()->user()->isViewer() ? 'blur-text' : '' }}" src="{{ route('signiture.show') }}" alt="sign" style="display: inline-block; height:100px; width: 100px; margin-top: 5px; text-align: right;" loading="lazy">
                 </div>
             </div>
         </div>

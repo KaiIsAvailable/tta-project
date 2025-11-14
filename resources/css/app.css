@@ -212,3 +212,26 @@ button {
 .close-btn:hover {
     color: red;
 }
+
+.tooltips {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltips .tooltips-text {
+  visibility: hidden;
+  color: black;
+  text-align: center;
+  padding: 3px;
+  border-radius: 5px;
+
+  position: absolute;
+  z-index: 1;
+  bottom: -5%; /* or top: 125% to place it below */
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.tooltips:hover .tooltips-text {
+  visibility: visible;
+}
