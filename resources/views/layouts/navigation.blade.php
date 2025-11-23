@@ -139,7 +139,7 @@
                     <x-responsive-nav-link :href="route('students.attendance')" :active="request()->routeIs('students.attendance')">
                         {{ __('Attendance') }}
                     </x-responsive-nav-link>
-                @elseif(Auth::user()->isAdmin())
+                @elseif(Auth::user()->isAdmin() || Auth::user()->isViewer())
                     <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-responsive-nav-link>
@@ -178,10 +178,18 @@
 
             <div class="mt-3 space-y-1">
                 @auth
-                    <x-responsive-nav-link :href="route('profile', ['id' => Auth::user()->id])">
+                    <!--<x-responsive-nav-link :href="route('profile', ['id' => Auth::user()->id])">
+                        {{ __('Profile') }}
+                    </x-responsive-nav-link>-->
+                    <form id="profile-form" method="POST" action="{{ route('profile') }}">
+                    @csrf
+                    <input type="hidden" name="id" value="{{ Auth::user()->id }}">
+                    <x-responsive-nav-link href="#" onclick="event.preventDefault(); document.getElementById('profile-form').submit();">
                         {{ __('Profile') }}
                     </x-responsive-nav-link>
+                </form>
                 @endauth
+                
 
                 <!-- Authentication -->
                 @auth
