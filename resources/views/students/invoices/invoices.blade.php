@@ -1,13 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<style>
-    .blur-text {
-        filter: blur(6px);
-        user-select: none;
-        pointer-events: none; /* Optional: block clicking */
-    }
-</style>
+
 <div class="container py-4">
     <div class="card border-secondary" style="width: 210mm; margin: 0 auto;">
         <div class="card-header text-center bg-light">
@@ -21,10 +15,17 @@
                 <div style="text-align: left;">
                     <h3 class="mb-0" style="font-size: 30px;"><strong>Tham's Taekwon-Do Academy</strong></h3>
                     <!--<p class="mb-0">Reg No: 201601010552</p>-->
-                    <p class="mb-0 {{ auth()->user()->isViewer() ? 'blur-text' : '' }}">Address: No 14A, Kledang Permai 7,</p>
-                    <p class="mb-0 {{ auth()->user()->isViewer() ? 'blur-text' : '' }}">Taman Kledang Permai, Menglembu,</p>
-                    <p class="mb-0 {{ auth()->user()->isViewer() ? 'blur-text' : '' }}">31450 Ipoh, Perak</p>
-                    <p class="mb-0 {{ auth()->user()->isViewer() ? 'blur-text' : '' }}">Tel: 016-560 6092</p>
+                    @if(auth()->user()->role === 'viewer')
+                        <p class="mb-0">Address: *********************</p>
+                        <p class="mb-0">*********************</p>
+                        <p class="mb-0">*********************</p>
+                        <p class="mb-0">Tel: ***-*** ****</p>
+                    @else
+                        <p class="mb-0">Address: No 14A, Kledang Permai 7,</p>
+                        <p class="mb-0">Taman Kledang Permai, Menglembu,</p>
+                        <p class="mb-0">31450 Ipoh, Perak</p>
+                        <p class="mb-0">Tel: 016-560 6092</p>
+                    @endif
                 </div>
             </div>
             <h3 class="text-dark mt-3"><strong>INVOICE</strong></h3>
@@ -33,11 +34,23 @@
             <div class="row" style="display: flex; justify-content: space-between;">
                 <div class="col-md-6" style="flex: 1;">
                     <h5>Issues To</h5>
-                    <p><strong>Name:</strong> {{ $payment->student->name }}</p>
+                    <p><strong>Name:</strong> 
+                        @if(auth()->user()->role === 'viewer')
+                            Student ***
+                        @else
+                            {{ $payment->student->name }}
+                        @endif
+                    </p>
                 </div>
                 <div class="col-md-6 text-right" style="flex: 1; text-align: right;">
                     <h5>Invoice Details</h5>
-                    <p><strong>Inovoice ID:</strong> {{ 'I' . sprintf('%05d', $payment->payment_id) }}</p>
+                    <p><strong>Inovoice ID:</strong> 
+                        @if(auth()->user()->role === 'viewer')
+                            I*****
+                        @else
+                            {{ 'I' . sprintf('%05d', $payment->payment_id) }}
+                        @endif
+                    </p>
                     @if($payment->payment_date)
                         <p><strong>Date:</strong> {{ $payment->payment_date->format('d-M-Y') }}</p>
                     @endif
@@ -61,19 +74,43 @@
                                 {{ $payment->paid_for->format('F Y') }}'s Fees
                             @endif
                         </td>
-                        <td class="text-right">RM{{ number_format($payment->payment_amount, 2) }}</td>
+                        <td class="text-right">
+                            @if(auth()->user()->role === 'viewer')
+                                RM***.**
+                            @else
+                                RM{{ number_format($payment->payment_amount, 2) }}
+                            @endif
+                        </td>
                     </tr>
                     <tr>
                         <td style="text-align: right;">Outstanding</td>
-                        <td>RM{{number_format($previousOutstanding, 2)}}</td>
+                        <td>
+                            @if(auth()->user()->role === 'viewer')
+                                RM***.**
+                            @else
+                                RM{{number_format($previousOutstanding, 2)}}
+                            @endif
+                        </td>
                     </tr>
                     <tr>
                         <td style="text-align: right;">Pre Payment</td>
-                        <td>RM{{number_format(abs($previousPrePayment), 2)}}</td>
+                        <td>
+                            @if(auth()->user()->role === 'viewer')
+                                RM***.**
+                            @else
+                                RM{{number_format(abs($previousPrePayment), 2)}}
+                            @endif
+                        </td>
                     </tr>
                     <tr>
                         <th style="text-align: right;">Total</th>
-                        <td>RM{{number_format($payment->payment_amount + $previousOutstanding + $previousPrePayment, 2)}}</td>
+                        <td>
+                            @if(auth()->user()->role === 'viewer')
+                                RM***.**
+                            @else
+                                RM{{number_format($payment->payment_amount + $previousOutstanding + $previousPrePayment, 2)}}
+                            @endif
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -81,7 +118,13 @@
             <div class="text-right">
                 <div style="text-align: right;">
                     <p style="margin-right: 30px;">Sign:</p>
-                    <img class="{{ auth()->user()->isViewer() ? 'blur-text' : '' }}" src="{{ route('signiture.show') }}" alt="sign" style="display: inline-block; height:100px; width: 100px; margin-top: 5px; text-align: right;" loading="lazy">
+                    @if(auth()->user()->role === 'viewer')
+                        <div style="display: inline-block; height:100px; width: 100px; margin-top: 5px; text-align: right; background-color: #f0f0f0; border: 1px solid #ccc; text-align: center; line-height: 100px; color: #666;">
+                            [Hidden]
+                        </div>
+                    @else
+                        <img src="{{ route('signiture.show') }}" alt="sign" style="display: inline-block; height:100px; width: 100px; margin-top: 5px; text-align: right;" loading="lazy">
+                    @endif
                 </div>
             </div>
         </div>

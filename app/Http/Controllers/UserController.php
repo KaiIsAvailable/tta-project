@@ -51,6 +51,15 @@ class UserController extends Controller
             END
         ")->paginate(10);
 
+        // Filter sensitive data for demo accounts
+        $currentUser = Auth::user();
+        if ($currentUser && $currentUser->role === 'viewer') {
+            $users->getCollection()->transform(function ($user) {
+                $user->email = null; // Hide email
+                return $user;
+            });
+        }
+
         return view('user.index', compact('users', 'students'));
     }
 

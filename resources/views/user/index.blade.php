@@ -9,13 +9,7 @@
     </script>
 @endif
 @include('components.loadingAction')
-<style>
-    .blur-text {
-        filter: blur(6px);
-        user-select: none;
-        pointer-events: none; /* Optional: block clicking */
-    }
-</style>
+
 <div class="container">
     <h2>User List</h2>
 
@@ -78,21 +72,37 @@
                                 </form>
                             </div>
                         </td>
-                        <td>{{ $user->name }}</td>
                         <td>
-                            @if($user->images)
-                                <img src="{{ asset($user->images) }}" alt="{{ $user->name }}" class="profile-picture" style="height: 150px !important; width: 150px !important; object-fit: cover;" loading="lazy">
+                            @if(auth()->user()->role === 'viewer')
+                                User ***
                             @else
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" class="profile-picture">
-                                    <circle cx="25" cy="25" r="25" fill="#ccc" />
-                                    <text x="25" y="30" font-size="18" text-anchor="middle" fill="#555">?</text>
-                                </svg>
+                                {{ $user->name }}
                             @endif
                         </td>
                         <td>
-                            <span class="{{ auth()->user()->isViewer() ? 'blur-text' : '' }}">
+                            @if(auth()->user()->role === 'viewer')
+                                <div style="height: 150px; width: 150px; background-color: #f0f0f0; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; color: #666;">
+                                    [Hidden]
+                                </div>
+                            @else
+                                @if($user->images)
+                                    <img src="{{ asset($user->images) }}" alt="{{ $user->name }}" class="profile-picture" style="height: 150px !important; width: 150px !important; object-fit: cover;" loading="lazy">
+                                @else
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" class="profile-picture">
+                                        <circle cx="25" cy="25" r="25" fill="#ccc" />
+                                        <text x="25" y="30" font-size="18" text-anchor="middle" fill="#555">?</text>
+                                    </svg>
+                                @endif
+                            @endif
+                        </td>
+                        <td>
+                            @if($user->email)
                                 {{ $user->email }}
-                            </span>
+                            @elseif(auth()->user()->role === 'viewer')
+                                <span>****@****.***</span>
+                            @else
+                                <span>No email</span>
+                            @endif
                         </td>
                         <td>{{ ucfirst($user->role) }}</td>
                         <td>

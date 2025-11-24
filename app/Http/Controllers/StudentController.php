@@ -51,6 +51,15 @@ class StudentController extends Controller
             ->orderBy('belt_id', 'desc')
             ->paginate(10);
 
+        // Filter sensitive data for demo accounts
+        if ($user && $user->role === 'viewer') {
+            $students->getCollection()->transform(function ($student) {
+                $student->ic_number = null; // Hide IC number
+                $student->setRelation('phone', collect()); // Hide phone numbers
+                return $student;
+            });
+        }
+
         // Get all centres and belts for dropdown filters
         $classVenue = ClassVenue::all();
         $belts = CurrentBelt::all();
@@ -298,6 +307,13 @@ class StudentController extends Controller
         // Retrieve the student and their relationships
         $students = Student::with(['phone', 'belt', 'centre', 'classes'])
             ->findOrFail($student_id);
+
+        // Filter sensitive data for demo accounts
+        $user = Auth::user();
+        if ($user && $user->role === 'viewer') {
+            $students->ic_number = null; // Hide IC number
+            $students->setRelation('phone', collect()); // Hide phone numbers
+        }
 
         // Paginate payments
         $payments = $students->payments()

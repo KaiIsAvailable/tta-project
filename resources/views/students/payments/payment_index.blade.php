@@ -82,13 +82,49 @@
                             </div>
                         </td>
                         <td>{{ $payment->payment_status }}</td>
-                        <td>{{ 'P' . sprintf('%05d', $payment->payment_id) }}</td>
-                        <td>{{ $payment->student?->name ?? 'N/A' }}</td> <!-- Assuming you have a relation between Payment and Student -->
+                        <td>
+                            @if(auth()->user()->role === 'viewer')
+                                P*****
+                            @else
+                                {{ 'P' . sprintf('%05d', $payment->payment_id) }}
+                            @endif
+                        </td>
+                        <td>
+                            @if(auth()->user()->role === 'viewer')
+                                Student ***
+                            @else
+                                {{ $payment->student?->name ?? 'N/A' }}
+                            @endif
+                        </td>
                         <td>{{ $payment->paid_for->format('F Y') }}</td>
-                        <td>RM{{ number_format($payment->payment_amount, 2) }}</td>
-                        <td>RM{{ number_format($payment->payment_payAmt, 2) }}</td>
-                        <td>RM{{ number_format($payment->payment_outstanding, 2) }}</td>
-                        <td>RM{{ number_format($payment->payment_preAmt, 2) }}</td>
+                        <td>
+                            @if(auth()->user()->role === 'viewer')
+                                RM***.**
+                            @else
+                                RM{{ number_format($payment->payment_amount, 2) }}
+                            @endif
+                        </td>
+                        <td>
+                            @if(auth()->user()->role === 'viewer')
+                                RM***.**
+                            @else
+                                RM{{ number_format($payment->payment_payAmt, 2) }}
+                            @endif
+                        </td>
+                        <td>
+                            @if(auth()->user()->role === 'viewer')
+                                RM***.**
+                            @else
+                                RM{{ number_format($payment->payment_outstanding, 2) }}
+                            @endif
+                        </td>
+                        <td>
+                            @if(auth()->user()->role === 'viewer')
+                                RM***.**
+                            @else
+                                RM{{ number_format($payment->payment_preAmt, 2) }}
+                            @endif
+                        </td>
                         <td>
                             @if ($payment->payment_date)
                                 {{ $payment->payment_date->format('d-M-Y') }}</td>

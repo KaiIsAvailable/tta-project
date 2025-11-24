@@ -8,16 +8,16 @@
     </script>
 @endif
 
-<style>
-    .blur-text {
-        filter: blur(6px);
-        user-select: none;
-        pointer-events: none; /* Optional: block clicking */
-    }
-</style>
+
 
 <div class="container">
-    <h1 class="text-left mb-4" style="display: inline;">{{ $user->name }}'s Profile</h1>
+    <h1 class="text-left mb-4" style="display: inline;">
+        @if(auth()->user()->role === 'viewer')
+            User ***'s Profile
+        @else
+            {{ $user->name }}'s Profile
+        @endif
+    </h1>
     @if (auth()->user()->isAdmin() && auth()->user()->id !== $user->id)
         <form method="POST" action="{{ route('profile.destroy', $user->id) }}" style="display: inline;">
             @csrf
@@ -42,15 +42,22 @@
         <div class="profile-left">
             <div class="card mb-3">
                 <div class="card-body text-center">
-                    @if($user->images)
-                        <img src="{{ asset($user->images) }}" alt="{{ $user->name }}" class="profile-pictures img-fluid">
+                    @if(auth()->user()->role === 'viewer')
+                        <div style="width: 150px; height: 150px; background-color: #f0f0f0; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; color: #666; margin: 0 auto;">
+                            [Hidden]
+                        </div>
+                        <h3>User ***</h3>
                     @else
-                        <svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 50 50" class="profile-pictures img-fluid">
-                            <circle cx="25" cy="25" r="25" fill="#ccc" />
-                            <text x="25" y="30" font-size="18" text-anchor="middle" fill="#555">?</text>
-                        </svg>
+                        @if($user->images)
+                            <img src="{{ asset($user->images) }}" alt="{{ $user->name }}" class="profile-pictures img-fluid">
+                        @else
+                            <svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 50 50" class="profile-pictures img-fluid">
+                                <circle cx="25" cy="25" r="25" fill="#ccc" />
+                                <text x="25" y="30" font-size="18" text-anchor="middle" fill="#555">?</text>
+                            </svg>
+                        @endif
+                        <h3>{{ $user->name }}</h3>
                     @endif
-                    <h3>{{ $user->name }}</h3>
                     <p><strong>Role:</strong> {{ $user->role }}</p>
                 </div>
             </div>
@@ -62,9 +69,11 @@
                 <div class="card-body">
                     <h5>Contact Information:</h5>
                     <p><strong>Email:</strong> 
-                        <span class="{{ auth()->user()->isViewer() ? 'blur-text' : '' }}">
+                        @if(auth()->user()->role === 'viewer')
+                            <span>****@****.***</span>
+                        @else
                             {{ $user->email }}
-                        </span>
+                        @endif
                     </p>
                 </div>
             </div>
@@ -78,14 +87,22 @@
                         <input type="hidden" id="userId" name="userId" value="{{ $user->id }}">
                         <div class="form-group mb-3">
                             <label for="name">Name:</label>
-                            <input type="text" id="name" name="name" class="form-control" value="{{ old('name', $user->name) }}" readonly>
+                            @if(auth()->user()->role === 'viewer')
+                                <input type="text" id="name" name="name" class="form-control" value="User ***" readonly>
+                            @else
+                                <input type="text" id="name" name="name" class="form-control" value="{{ old('name', $user->name) }}" readonly>
+                            @endif
                             @error('name')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="form-group mb-3">
                             <label for="email">Email:</label>
-                            <input type="email" id="email" name="email" class="form-control {{ auth()->user()->isViewer() ? 'blur-text' : '' }}" value="{{ old('email', $user->email) }}" readonly>
+                            @if(auth()->user()->role === 'viewer')
+                                <input type="email" id="email" name="email" class="form-control" value="****@****.***" readonly>
+                            @else
+                                <input type="email" id="email" name="email" class="form-control" value="{{ old('email', $user->email) }}" readonly>
+                            @endif
                             @error('email')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

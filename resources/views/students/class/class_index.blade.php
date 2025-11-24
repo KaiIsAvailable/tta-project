@@ -56,9 +56,13 @@
                             <td>{{ $classes->venue->cv_name}}</td>
                             <td>{{ $classes->venue->cv_state}}</td>
                             <td>
-                                @foreach($classes->instructors as $instructor)
-                                    {{ $instructor->name }}<br>
-                                @endforeach
+                                @if(auth()->user()->role === 'viewer')
+                                    <span>Instructor ***</span>
+                                @else
+                                    @foreach($classes->instructors as $instructor)
+                                        {{ $instructor->name }}<br>
+                                    @endforeach
+                                @endif
                             </td>
                             <td><a href="{{ $classes->venue->cv_location_link}}" target="_blank">{{ $classes->venue->cv_location_link}}</a></td>
                         </tr>

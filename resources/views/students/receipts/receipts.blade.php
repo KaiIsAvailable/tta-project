@@ -2,13 +2,7 @@
 
 @section('content')
 
-<style>
-    .blur-text {
-        filter: blur(6px);
-        user-select: none;
-        pointer-events: none; /* Optional: block clicking */
-    }
-</style>
+
 
 <div class="container py-4">
     <div class="card border-secondary" style="width: 210mm; margin: 0 auto; position: relative; overflow: hidden;">
@@ -39,10 +33,17 @@
                 <div style="text-align: left;">
                     <h3 class="mb-0" style="font-size: 30px;"><strong>Tham's Taekwon-Do Academy</strong></h3>
                     <!--<p class="mb-0">Reg No: 201601010552</p>-->
-                    <p class="mb-0 {{ auth()->user()->isViewer() ? 'blur-text' : '' }}">Address: No 14A, Kledang Permai 7,</p>
-                    <p class="mb-0 {{ auth()->user()->isViewer() ? 'blur-text' : '' }} ">Taman Kledang Permai, Menglembu,</p>
-                    <p class="mb-0 {{ auth()->user()->isViewer() ? 'blur-text' : '' }} ">31450 Ipoh, Perak</p>
-                    <p class="mb-0 {{ auth()->user()->isViewer() ? 'blur-text' : '' }} ">Tel: 016-560 6092</p>
+                    @if(auth()->user()->role === 'viewer')
+                        <p class="mb-0">Address: *********************</p>
+                        <p class="mb-0">*********************</p>
+                        <p class="mb-0">*********************</p>
+                        <p class="mb-0">Tel: ***-*** ****</p>
+                    @else
+                        <p class="mb-0">Address: No 14A, Kledang Permai 7,</p>
+                        <p class="mb-0">Taman Kledang Permai, Menglembu,</p>
+                        <p class="mb-0">31450 Ipoh, Perak</p>
+                        <p class="mb-0">Tel: 016-560 6092</p>
+                    @endif
                 </div>
             </div>
             <h3 class="text-dark mt-3"><strong>OFFICIAL RECEIPT</strong></h3>
@@ -51,11 +52,19 @@
             <div class="row" style="display: flex; justify-content: space-between;">
                 <div class="col-md-6" style="flex: 1;">
                     <h5>Received From</h5>
-                    <p><strong>Name:</strong> {{ $payment->student->name }}</p>
+                    @if(auth()->user()->role === 'viewer')
+                        <p><strong>Name:</strong> Student ***</p>
+                    @else
+                        <p><strong>Name:</strong> {{ $payment->student->name }}</p>
+                    @endif
                 </div>
                 <div class="col-md-6 text-right" style="flex: 1; text-align: right;">
                     <h5>Receipt Details</h5>
-                    <p><strong>Receipt ID:</strong> {{ 'P' . sprintf('%05d', $payment->payment_id) }}</p>
+                    @if(auth()->user()->role === 'viewer')
+                        <p><strong>Receipt ID:</strong> P*****</p>
+                    @else
+                        <p><strong>Receipt ID:</strong> {{ 'P' . sprintf('%05d', $payment->payment_id) }}</p>
+                    @endif
                     <p><strong>Date:</strong> {{ $payment->payment_date->format('d-M-Y') }}</p>
                 </div>
             </div> 
@@ -70,46 +79,57 @@
                 </thead>
                 <tbody>
                     <?php $remain = 0; ?>
-                    @if($previousOutstanding != 0)
-                        @if($payment->payment_payAmt >= $previousOutstanding)
-                            <tr>
-                                <td>{{$previousMonth->format('F Y')}}'s Outstanding</td>
-                                <td>RM{{number_format($previousOutstanding, 2)}}</td>
-                            </tr>
-                        @else
-                            <tr>
-                                <td>{{$previousMonth->format('F Y')}}'s Outstanding</td>
-                                <td>RM{{number_format($payment->payment_payAmt, 2)}}</td>
-                            </tr>
+                    @if(auth()->user()->role === 'viewer')
+                        <tr>
+                            <td>Monthly Fees</td>
+                            <td class="text-right">RM***.**</td>
+                        </tr>
+                        <tr>
+                            <th style="text-align: right;">Total</th>
+                            <td>RM***.**</td>
+                        </tr>
+                    @else
+                        @if($previousOutstanding != 0)
+                            @if($payment->payment_payAmt >= $previousOutstanding)
+                                <tr>
+                                    <td>{{$previousMonth->format('F Y')}}'s Outstanding</td>
+                                    <td>RM{{number_format($previousOutstanding, 2)}}</td>
+                                </tr>
+                            @else
+                                <tr>
+                                    <td>{{$previousMonth->format('F Y')}}'s Outstanding</td>
+                                    <td>RM{{number_format($payment->payment_payAmt, 2)}}</td>
+                                </tr>
+                            @endif
                         @endif
+                        <?php $remain = $payment->payment_payAmt - $previousOutstanding ?>
+                        @if($remain > 0)
+                            <td>
+                                @if (strtotime($payment->paid_for))
+                                    {{ $payment->paid_for->format('F Y') }}'s Fees
+                                @endif
+                            </td>
+                            <td class="text-right">RM{{ number_format($remain, 2) }}</td>
+                        @elseif($previousOutstanding == 0)
+                            <td>
+                                @if (strtotime($payment->paid_for))
+                                    {{ $payment->paid_for->format('F Y') }}'s Fees
+                                @endif
+                            </td>
+                            <td class="text-right">RM{{ number_format($payment->payment_payAmt, 2) }}</td>
+                        @elseif($payment->payment_payAmt == 0 && $payment->payment_status == "Pre Payment")
+                            <td>
+                                @if (strtotime($payment->paid_for))
+                                    {{ $payment->paid_for->format('F Y') }}'s Fees
+                                @endif
+                            </td>
+                            <td class="text-right">RM{{ number_format($payment->payment_payAmt, 2) }}</td>
+                        @endif
+                        <tr>
+                            <th style="text-align: right;">Total</th>
+                            <td>RM{{ number_format($payment->payment_payAmt, 2) }}</td>
+                        </tr>
                     @endif
-                    <?php $remain = $payment->payment_payAmt - $previousOutstanding ?>
-                    @if($remain > 0)
-                        <td>
-                            @if (strtotime($payment->paid_for))
-                                {{ $payment->paid_for->format('F Y') }}'s Fees
-                            @endif
-                        </td>
-                        <td class="text-right">RM{{ number_format($remain, 2) }}</td>
-                    @elseif($previousOutstanding == 0)
-                        <td>
-                            @if (strtotime($payment->paid_for))
-                                {{ $payment->paid_for->format('F Y') }}'s Fees
-                            @endif
-                        </td>
-                        <td class="text-right">RM{{ number_format($payment->payment_payAmt, 2) }}</td>
-                    @elseif($payment->payment_payAmt == 0 && $payment->payment_status == "Pre Payment")
-                        <td>
-                            @if (strtotime($payment->paid_for))
-                                {{ $payment->paid_for->format('F Y') }}'s Fees
-                            @endif
-                        </td>
-                        <td class="text-right">RM{{ number_format($payment->payment_payAmt, 2) }}</td>
-                    @endif
-                    <tr>
-                        <th style="text-align: right;">Total</th>
-                        <td>RM{{ number_format($payment->payment_payAmt, 2) }}</td>
-                    </tr>
                 </tbody>
             </table>
             <hr>
@@ -121,7 +141,13 @@
                     <!-- Right (Sign and Image) -->
                     <div style="text-align: right;">
                         <p style="margin-right: 30px;">Sign:</p>
-                        <img class="{{ auth()->user()->isViewer() ? 'blur-text' : '' }}" src="{{ route('signiture.show') }}" alt="sign" style="height:100px; width: 100px; margin-top: 5px;" loading="lazy">
+                        @if(auth()->user()->role === 'viewer')
+                            <div style="display: inline-block; height:100px; width: 100px; margin-top: 5px; background-color: #f0f0f0; border: 1px solid #ccc; text-align: center; line-height: 100px; color: #666;">
+                                [Hidden]
+                            </div>
+                        @else
+                            <img src="{{ route('signiture.show') }}" alt="sign" style="height:100px; width: 100px; margin-top: 5px;" loading="lazy">
+                        @endif
                     </div>
                 </div>
             </div>

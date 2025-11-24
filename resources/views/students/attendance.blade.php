@@ -81,16 +81,23 @@
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
                                     <td>
-                                        {{ $student->name }}
-                                        @if($student->profile_picture)
-                                            <img src="{{ asset($student->profile_picture) }}" 
-                                                alt="{{ $student->name }}" height="150px" width="150px" 
-                                                class="profile-pictures img-fluid" loading="lazy">
+                                        @if(auth()->user()->role === 'viewer')
+                                            Student ***
+                                            <div style="height: 150px; width: 150px; background-color: #f0f0f0; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; color: #666; margin-top: 5px;">
+                                                [Hidden]
+                                            </div>
                                         @else
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 50 50">
-                                                <circle cx="25" cy="25" r="25" fill="#ccc" />
-                                                <text x="25" y="30" font-size="18" text-anchor="middle" fill="#555">?</text>
-                                            </svg>
+                                            {{ $student->name }}
+                                            @if($student->profile_picture)
+                                                <img src="{{ asset($student->profile_picture) }}" 
+                                                    alt="{{ $student->name }}" height="150px" width="150px" 
+                                                    class="profile-pictures img-fluid" loading="lazy">
+                                            @else
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 50 50">
+                                                    <circle cx="25" cy="25" r="25" fill="#ccc" />
+                                                    <text x="25" y="30" font-size="18" text-anchor="middle" fill="#555">?</text>
+                                                </svg>
+                                            @endif
                                         @endif
                                     </td>
                                     <td>

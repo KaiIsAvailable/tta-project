@@ -6,13 +6,7 @@
         window.location.href = "{{ route('dashboard') }}";
     </script>
 @endif
-<style>
-    .blur-text {
-        filter: blur(6px);
-        user-select: none;
-        pointer-events: none; /* Optional: block clicking */
-    }
-</style>
+
 <div class="container">
     <h2>Student List</h2>
     @if ($students->isEmpty())
@@ -83,62 +77,69 @@
                                 </div>
                             </td>
                             <td>
-                                {{--@if($student->profile_picture)
-                                    <img src="data:image/jpeg;base64,{{ base64_encode($student->profile_picture) }}" alt="{{ $student->name }}" class="profile-picture" style="height: 150px !important; width: 150px !important; object-fit: cover;" loading="lazy">
+                                @if(auth()->user()->role === 'viewer')
+                                    {{-- Hidden placeholder for demo accounts --}}
+                                    <div style="height: 150px; width: 150px; background-color: #f0f0f0; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; color: #666;">
+                                        [Hidden]
+                                    </div>
                                 @else
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" class="profile-picture">
-                                        <circle cx="25" cy="25" r="25" fill="#ccc" />
-                                        <text x="25" y="30" font-size="18" text-anchor="middle" fill="#555">?</text>
-                                    </svg>
-                                @endif--}}
-                                @if ($student->profile_picture)
-                                    {{-- Student's profile picture from file path --}}
-                                    <img src="{{ asset($student->profile_picture) }}"
-                                        alt="{{ $student->name }}"
-                                        class="profile-picture"
-                                        style="height: 150px; width: 150px; object-fit: cover;"
-                                        loading="lazy">
-                                
-                                @elseif ($student->user && $student->user->images)
-                                    {{-- User image from file path --}}
-                                    <img src="{{ asset($student->user->images) }}"
-                                        alt="{{ $student->name }}"
-                                        class="profile-picture"
-                                        style="height: 150px; width: 150px; object-fit: cover;"
-                                        loading="lazy">
-                                
-                                @else
-                                    {{-- Default SVG avatar --}}
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 50 50"
-                                        class="profile-picture"
-                                        style="height: 150px; width: 150px;">
-                                        <circle cx="25" cy="25" r="25" fill="#ccc" />
-                                        <text x="25" y="30" font-size="18" text-anchor="middle" fill="#555">?</text>
-                                    </svg>
+                                    @if ($student->profile_picture)
+                                        {{-- Student's profile picture from file path --}}
+                                        <img src="{{ asset($student->profile_picture) }}"
+                                            alt="{{ $student->name }}"
+                                            class="profile-picture"
+                                            style="height: 150px; width: 150px; object-fit: cover;"
+                                            loading="lazy">
+                                    
+                                    @elseif ($student->user && $student->user->images)
+                                        {{-- User image from file path --}}
+                                        <img src="{{ asset($student->user->images) }}"
+                                            alt="{{ $student->name }}"
+                                            class="profile-picture"
+                                            style="height: 150px; width: 150px; object-fit: cover;"
+                                            loading="lazy">
+                                    
+                                    @else
+                                        {{-- Default SVG avatar --}}
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 50 50"
+                                            class="profile-picture"
+                                            style="height: 150px; width: 150px;">
+                                            <circle cx="25" cy="25" r="25" fill="#ccc" />
+                                            <text x="25" y="30" font-size="18" text-anchor="middle" fill="#555">?</text>
+                                        </svg>
+                                    @endif
                                 @endif
                             </td>
-                            <td>{{ $student->name }}</td>
+                            <td>
+                                @if(auth()->user()->role === 'viewer')
+                                    <span>Student ***</span>
+                                @else
+                                    {{ $student->name }}
+                                @endif
+                            </td>
                             <td>
                                 @if ($student->ic_number)
-                                    <span class="{{ auth()->user()->isViewer() ? 'blur-text' : '' }}">
-                                        {{ $student->ic_number }}
-                                    </span>
+                                    {{ $student->ic_number }}
+                                @elseif (auth()->user()->role === 'viewer')
+                                    <span>***-**-****</span>
                                 @else
                                     <span>N/A</span>
                                 @endif
                             </td>   
                             <td>
-                                @foreach ($student->phone as $phone)
-                                    <a href="javascript:void(0)" 
-                                    class="{{ auth()->user()->isViewer() ? 'blur-text' : '' }}"
-                                    data-phone="{{ $phone->country_code }}{{ $phone->phone_number }}" 
-                                    data-person="{{ $phone->phone_person }}"
-                                    onclick="return false">
-                                        {{ $phone->phone_person }}: {{ $phone->phone_number }}
-                                    </a>
-                                    <br>
-                                @endforeach
+                                @if ($student->phone->count() > 0)
+                                    @foreach ($student->phone as $phone)
+                                        <a href="javascript:void(0)" class="phone-number-link" data-phone="{{ $phone->country_code }}{{ $phone->phone_number }}" data-person="{{ $phone->phone_person }}">
+                                            {{ $phone->phone_person }}: {{ $phone->phone_number }}
+                                        </a>
+                                        <br>
+                                    @endforeach
+                                @elseif (auth()->user()->role === 'viewer')
+                                    <span>Contact: ***-*******</span>
+                                @else
+                                    <span>No contact available</span>
+                                @endif
                             </td>
                             <td>RM{{ $student->fee !== null ? $student->fee : 'Not Assigned' }}</td>
                             <td>
