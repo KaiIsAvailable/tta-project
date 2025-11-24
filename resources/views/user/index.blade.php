@@ -106,59 +106,63 @@
                         </td>
                         <td>{{ ucfirst($user->role) }}</td>
                         <td>
-                            @if ($user->approve == "Approved")
-                                <p style="color: green;">{{ $user->approve }}</p>
-                                @if ($user->students)
-                                    <p>{{ 'S' . sprintf('%05d',$user->student_id) }}-{{ $user->students->name }}</p>
-                                @endif
-                            @elseif ($user->approve == "Blocked")
-                                <p style="color: red; margin: 0;">{{ $user->approve }}</p>
-                                @if ($user->students)
-                                    <p>{{ 'S' . sprintf('%05d',$user->student_id) }}-{{ $user->students->name }}</p>
-                                @endif            
-                            @elseif ($user->approve == "Rejected")
-                                <div style="display: flex; align-items: center;">
+                            @if(auth()->user()->role === 'viewer')
+                                ***
+                            @else
+                                @if ($user->approve == "Approved")
+                                    <p style="color: green;">{{ $user->approve }}</p>
+                                    @if ($user->students)
+                                        <p>{{ 'S' . sprintf('%05d',$user->student_id) }}-{{ $user->students->name }}</p>
+                                    @endif
+                                @elseif ($user->approve == "Blocked")
                                     <p style="color: red; margin: 0;">{{ $user->approve }}</p>
+                                    @if ($user->students)
+                                        <p>{{ 'S' . sprintf('%05d',$user->student_id) }}-{{ $user->students->name }}</p>
+                                    @endif            
+                                @elseif ($user->approve == "Rejected")
+                                    <div style="display: flex; align-items: center;">
+                                        <p style="color: red; margin: 0;">{{ $user->approve }}</p>
+                                        <div class="tooltips">
+                                            <button style="color: green; border: none; background: none; cursor: pointer; margin-left: 10px;"  data-user-id="{{ $user->id }}" class="selectStudentBtn">
+                                                &#10004;
+                                            </button>
+                                            <span class="tooltips-text">Approve</span>
+                                        </div>
+                                        <div data-user-id="{{ $user->id }}" class="studentSelectionForm" style="display: none;
+                                        position: fixed;
+                                        top: 0; left: 0;
+                                        width: 100%; height: 100%;
+                                        background-color: rgba(255, 255, 255, 0.8);
+                                        z-index: 9999;
+                                        text-align: center;
+                                        justify-content: center;
+                                        padding-top: 200px;
+                                        font-size: 24px;
+                                        color: #333;" >
+                                            <form action="{{ route('approveUser', $user->id) }}" method="POST" style="display: inline;">
+                                                @csrf
+
+                                                <label for="studentName">Select student name:</label>
+                                                <select name="studentName" id="studentName">
+                                                    <option value="">Student not added yet</option>
+                                                    @foreach ($students as $student)
+                                                        <option value="{{ $student->id }}">{{ $student->name }}</option>
+                                                    @endforeach
+                                                </select>
+
+                                                <br><br>
+                                                <button type="submit" data-user-id="{{ $user->id }}" class="btn btn-primary btn-sm cancelSelectionBtn">Approve</button>
+                                            </form>
+                                            <button data-user-id="{{ $user->id }}" class="btn btn-secondary cancelSelectionBtn">Cancel</button>
+                                        </div>
+                                    </div>
+                                @elseif ($user->approve == 'Pending')
+                                    @if ($user->email_verified_at == null)
+                                        <p style="color: red;">User not yet verify email</p>
+                                    @endif
+                                    <p>Do you know this guy?</p>
                                     <div class="tooltips">
-                                        <button style="color: green; border: none; background: none; cursor: pointer; margin-left: 10px;"  data-user-id="{{ $user->id }}" class="selectStudentBtn">
-                                            &#10004;
-                                        </button>
-                                        <span class="tooltips-text">Approve</span>
-                                    </div>
-                                    <div data-user-id="{{ $user->id }}" class="studentSelectionForm" style="display: none;
-                                    position: fixed;
-                                    top: 0; left: 0;
-                                    width: 100%; height: 100%;
-                                    background-color: rgba(255, 255, 255, 0.8);
-                                    z-index: 9999;
-                                    text-align: center;
-                                    justify-content: center;
-                                    padding-top: 200px;
-                                    font-size: 24px;
-                                    color: #333;" >
-                                        <form action="{{ route('approveUser', $user->id) }}" method="POST" style="display: inline;">
-                                            @csrf
-
-                                            <label for="studentName">Select student name:</label>
-                                            <select name="studentName" id="studentName">
-                                                <option value="">Student not added yet</option>
-                                                @foreach ($students as $student)
-                                                    <option value="{{ $student->id }}">{{ $student->name }}</option>
-                                                @endforeach
-                                            </select>
-
-                                            <br><br>
-                                            <button type="submit" data-user-id="{{ $user->id }}" class="btn btn-primary btn-sm cancelSelectionBtn">Approve</button>
-                                        </form>
-                                        <button data-user-id="{{ $user->id }}" class="btn btn-secondary cancelSelectionBtn">Cancel</button>
-                                    </div>
-                                </div>
-                            @elseif ($user->approve == 'Pending')
-                                @if ($user->email_verified_at == null)
-                                    <p style="color: red;">User not yet verify email</p>
-                                @endif
-                                <p>Do you know this guy?</p>
-                                <div class="tooltips">
+                            @endif
                                     <button style="color: green; border: none; background: none; cursor: pointer;" data-user-id="{{ $user->id }}" class="selectStudentBtn">
                                         &#10004;
                                     </button>
@@ -208,12 +212,19 @@
         </table>
     </div>
 
-    @if (Auth::User()->isAdmin())
+    @if (Auth::User()->isAdmin() || Auth::User()->isViewer())
         <div class="circle-button">
-            <a href="{{route('register')}}" class="btn btn-primary rounded-circle" 
-            style="width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; position: fixed; bottom: 20px; right: 20px; font-size: 24px; border-radius: 50%;">
-                +
-            </a>
+            @if(auth()->user()->role === 'viewer')
+                <button class="btn btn-primary rounded-circle" onclick="alert('Permission Denied: Demo account cannot perform this action')" 
+                style="width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; position: fixed; bottom: 20px; right: 20px; font-size: 24px; border-radius: 50%;">
+                    +
+                </button>
+            @else
+                <a href="{{route('register')}}" class="btn btn-primary rounded-circle" 
+                style="width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; position: fixed; bottom: 20px; right: 20px; font-size: 24px; border-radius: 50%;">
+                    +
+                </a>
+            @endif
             <span class="tooltip-text">Add User</span>
         </div>
     @endif

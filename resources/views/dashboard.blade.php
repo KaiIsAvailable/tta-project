@@ -21,7 +21,7 @@
         <div class="mb-4">Welcome to Tham's Taekwon-do Academy!</div>
     @endauth
 
-    @if(Auth::user()->isAdmin())
+    @if(Auth::user()->isAdmin() || Auth::user()->isViewer())
     <div class="row">
         <!-- Summary Cards -->
         <div class="col-md-4 mb-4">
@@ -83,9 +83,7 @@
             </div>
         </div>
     @elseif(Auth::user()->isStudent())
-
-    @elseif(Auth::user()->isViewer())
-        <div class="mb-4">You are in demo account</div>
+    
     @endif
 </div>
 

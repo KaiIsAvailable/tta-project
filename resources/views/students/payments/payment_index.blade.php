@@ -57,12 +57,16 @@
                     <tr>
                         <td>
                             <div style="display: flex; gap: 10px;">
-                                @if (Auth::User()->isAdmin())
+                                @if (Auth::User()->isAdmin() || Auth::User()->isViewer())
                                     @if ($payment->payment_status == 'Unpaid')
-                                        <form action="{{ route('payments.edit', ['payment' => $payment->payment_id]) }}" method="GET">
-                                            @csrf
-                                            <button type="submit" class="btn btn-primary">Pay</button>
-                                        </form>
+                                        @if(auth()->user()->role === 'viewer')
+                                            <button class="btn btn-primary" onclick="alert('Permission Denied: Demo account cannot perform this action')">Pay</button>
+                                        @else
+                                            <form action="{{ route('payments.edit', ['payment' => $payment->payment_id]) }}" method="GET">
+                                                @csrf
+                                                <button type="submit" class="btn btn-primary">Pay</button>
+                                            </form>
+                                        @endif
                                     @endif
                                 @endif
                                 @if ($payment->payment_status == 'Paid')
@@ -70,14 +74,18 @@
                                         <button type="submit" class="btn btn-primary btn-sm">Print Receipt</button>
                                     </a>
                                 @endif
-                                <a href="{{ route('invoice.show', ['paymentId' => $payment->payment_id]) }}" title="Print Receipt">
+                                <a href="{{ route('invoice.show', ['paymentId' => $payment->payment_id]) }}" title="Print Invoice">
                                     <button type="submit" class="btn btn-primary btn-sm">Print Invoice</button>
                                 </a>
-                                @if (Auth::User()->isAdmin())
-                                    <form action="{{ route('payments.void', ['payment' => $payment->payment_id]) }}" method="POST" style="display: inline;">
-                                        @csrf
-                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to void this payment?');">Void</button>
-                                    </form>
+                                @if (Auth::User()->isAdmin() || Auth::User()->isViewer())
+                                    @if(auth()->user()->role === 'viewer')
+                                        <button class="btn btn-danger btn-sm" onclick="alert('Permission Denied: Demo account cannot perform this action')">Void</button>
+                                    @else
+                                        <form action="{{ route('payments.void', ['payment' => $payment->payment_id]) }}" method="POST" style="display: inline;">
+                                            @csrf
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to void this payment?');">Void</button>
+                                        </form>
+                                    @endif
                                 @endif
                             </div>
                         </td>

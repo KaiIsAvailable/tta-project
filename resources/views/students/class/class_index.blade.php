@@ -18,7 +18,7 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        @if (Auth::User()->isAdmin())
+                        @if (Auth::User()->isAdmin() || Auth::User()->isViewer())
                             <th>Action</th>
                         @endif
                         <th>Class Day</th>
@@ -34,21 +34,26 @@
                     @foreach($class as $index => $classes)
                         <tr>
                             <td>{{ $index + 1 }}</td>
-                            @if (Auth::User()->isAdmin())
+                            @if (Auth::User()->isAdmin() || Auth::User()->isViewer())
                                 <td>
                                     <div class="btn-group" role="group" aria-label="Actions">
-                                        <form action="{{ route('students.class.class_edit', $classes->class_id) }}" method="GET" style="display: inline;">
-                                            @csrf
-                                            @method('GET')
-                                            <button type="submit" class="btn btn-primary btn-sm">Edit</button>
-                                        </form>
-                                        <form action="{{ route('students.class.class_destroy', $classes->class_id) }}" method="POST" style="display: inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this student?');">Delete</button>
-                                        </form>
+                                        @if(auth()->user()->role === 'viewer')
+                                            <button class="btn btn-primary btn-sm" onclick="alert('Permission Denied: Demo account cannot perform this action')">Edit</button>
+                                            <button class="btn btn-danger btn-sm" onclick="alert('Permission Denied: Demo account cannot perform this action')">Delete</button>
+                                        @else
+                                            <form action="{{ route('students.class.class_edit', $classes->class_id) }}" method="GET" style="display: inline;">
+                                                @csrf
+                                                @method('GET')
+                                                <button type="submit" class="btn btn-primary btn-sm">Edit</button>
+                                            </form>
+                                            <form action="{{ route('students.class.class_destroy', $classes->class_id) }}" method="POST" style="display: inline;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this student?');">Delete</button>
+                                            </form>
+                                        @endif
                                     </div>
-                            </td>
+                                </td>
                             @endif
                             <td>{{ $classes->class_day }}</td>
                             <td>{{ $classes->class_start_time }} to {{ $classes->class_end_time }}</td>
@@ -71,12 +76,19 @@
             </table>
         </div>
 
-        @if (Auth::User()->isAdmin())
+        @if (Auth::User()->isAdmin() || Auth::User()->isViewer())
             <div class="circle-button">
-                <a href="{{ route('students.class.class_create') }}" class="btn btn-primary rounded-circle" 
-                style="width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; position: fixed; bottom: 20px; right: 20px; font-size: 24px; border-radius: 50%;">
-                    +
-                </a>
+                @if(auth()->user()->role === 'viewer')
+                    <button class="btn btn-primary rounded-circle" onclick="alert('Permission Denied: Demo account cannot perform this action')" 
+                    style="width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; position: fixed; bottom: 20px; right: 20px; font-size: 24px; border-radius: 50%;">
+                        +
+                    </button>
+                @else
+                    <a href="{{ route('students.class.class_create') }}" class="btn btn-primary rounded-circle" 
+                    style="width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; position: fixed; bottom: 20px; right: 20px; font-size: 24px; border-radius: 50%;">
+                        +
+                    </a>
+                @endif
                 <span class="tooltip-text">Add Class</span> <!-- Custom tooltip text -->
             </div>
         @endif

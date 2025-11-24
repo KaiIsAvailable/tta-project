@@ -129,8 +129,12 @@
                             <input type="hidden" name="role" id="role" class="form-control" value="{{ old('role', $user->role) }}" readonly>
                             <input type="hidden" name="approve" id="approve" class="form-control" value="{{ old('approve', $user->approve) }}" readonly>
                         @endif
-                        @if (Auth::User()->isAdmin())
-                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                        @if (Auth::User()->isAdmin() || Auth::User()->isViewer())
+                            @if(auth()->user()->role === 'viewer')
+                                <button type="button" class="btn btn-primary" onclick="alert('Permission Denied: Demo account cannot perform this action')">Update Profile</button>
+                            @else
+                                <button type="submit" class="btn btn-primary">Update Profile</button>
+                            @endif
                         @endif
                     </form>
                 </div>

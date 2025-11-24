@@ -126,8 +126,12 @@
                     <br>
                 @endforeach
             </div>
-            @if (Auth::User()->isAdmin())
-                <button type="submit" class="btn btn-primary">Submit Attendance</button>
+            @if (Auth::User()->isAdmin() || Auth::User()->isViewer())
+                @if(auth()->user()->role === 'viewer')
+                    <button type="button" class="btn btn-primary" onclick="alert('Permission Denied: Demo account cannot perform this action')">Submit Attendance</button>
+                @else
+                    <button type="submit" class="btn btn-primary">Submit Attendance</button>
+                @endif
             @endif
         </form>
     @endif

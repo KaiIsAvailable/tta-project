@@ -185,12 +185,19 @@
                 </tbody>
             </table>
         </div>
-        @if (Auth::User()->isAdmin())
+        @if (Auth::User()->isAdmin() || Auth::User()->isViewer())
             <div class="circle-button">
-                <a href="{{ route('students.create') }}" class="btn btn-primary rounded-circle" 
-                style="width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; position: fixed; bottom: 20px; right: 20px; font-size: 24px; border-radius: 50%;">
-                    +
-                </a>
+                @if(auth()->user()->role === 'viewer')
+                    <button class="btn btn-primary rounded-circle" onclick="alert('Permission Denied: Demo account cannot perform this action')" 
+                    style="width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; position: fixed; bottom: 20px; right: 20px; font-size: 24px; border-radius: 50%;">
+                        +
+                    </button>
+                @else
+                    <a href="{{ route('students.create') }}" class="btn btn-primary rounded-circle" 
+                    style="width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; position: fixed; bottom: 20px; right: 20px; font-size: 24px; border-radius: 50%;">
+                        +
+                    </a>
+                @endif
                 <span class="tooltip-text">Add Student</span> <!-- Custom tooltip text -->
             </div>
         @endif
