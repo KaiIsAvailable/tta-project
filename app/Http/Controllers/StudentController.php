@@ -14,6 +14,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 
 class StudentController extends Controller
@@ -334,53 +335,80 @@ class StudentController extends Controller
 
     public function exportCsv()
     {
-        $students = Student::with(['belt', 'centre', 'classes', 'phone'])->get();
+        // Fetch students with relationships
+        $students = Student::with(['belt', 'centre', 'phone'])->get();
 
         $callback = function() use ($students) {
             $file = fopen('php://output', 'w');
-            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF)); // Fix for Excel encoding
+            
+            // Add BOM to fix Excel character encoding (UTF-8)
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
 
-            // Header: Include 'ID' at the start
+            // CSV Headers - ID must be the first column
             fputcsv($file, ['ID', 'Name', 'IC Number', 'Fee', 'Belt Name', 'Centre Name', 'Start Date', 'Phones (Person:Number)']);
 
             foreach ($students as $student) {
+                // Format phone numbers: "Father:0123, Mother:0456"
+                $phoneString = $student->phone->map(function($p) {
+                    return "{$p->phone_person}:{$p->phone_number}";
+                })->implode(', ');
+
                 fputcsv($file, [
-                    $student->student_id, // Primary Key
+                    $student->student_id, // Primary Key for matching
                     $student->name,
                     $student->ic_number,
                     $student->fee,
                     $student->belt ? $student->belt->BeltName : '',
                     $student->centre ? $student->centre->centre_name : '',
                     $student->student_startDate ? $student->student_startDate->format('Y-m-d') : '',
-                    $student->phone->map(fn($p) => "{$p->phone_person}:{$p->phone_number}")->implode(', ')
+                    $phoneString
                 ]);
             }
             fclose($file);
         };
 
-        return response()->stream($callback, 200, [
-            "Content-type" => "text/csv",
-            "Content-Disposition" => "attachment; filename=students_bulk_list.csv",
+        // We use StreamedResponse to bypass the "MIME type guessing" error
+        return new StreamedResponse($callback, 200, [
+            'Content-Type' => 'text/csv; charset=utf-8',
+            'Content-Disposition' => 'attachment; filename="students_list_export.csv"',
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
         ]);
     }
 
+    // --- IMPORT FUNCTION ---
     public function importCsv(Request $request)
     {
-        $request->validate(['csv_file' => 'required|mimes:csv,txt']);
+        // Validate file presence. We use 'file' instead of 'mimes:csv' 
+        // because fileinfo is disabled on your server.
+        $request->validate([
+            'csv_file' => 'required|file'
+        ]);
+
+        // Manual extension check
+        $extension = $request->file('csv_file')->getClientOriginalExtension();
+        if (!in_array($extension, ['csv', 'txt'])) {
+            return back()->with('error', 'Invalid file format. Please upload a CSV.');
+        }
+
         $file = fopen($request->file('csv_file')->getRealPath(), 'r');
-        fgetcsv($file); // Skip header
+        fgetcsv($file); // Skip header row
 
         DB::beginTransaction();
         try {
             while (($row = fgetcsv($file)) !== FALSE) {
-                $studentId = $row[0]; // The ID column
+                // Skip empty rows
+                if (empty($row[1])) continue; 
 
-                // Find relationships
+                $studentId = $row[0]; // ID from column 1
+
+                // Find FKs by name
                 $belt = CurrentBelt::where('BeltName', $row[4])->first();
                 $centre = Centre::where('centre_name', $row[5])->first();
 
-                // 1. UPDATE OR CREATE based on student_id
-                // If $studentId is empty, it will automatically create a new record
+                // 1. UPDATE OR CREATE
+                // If ID exists in DB, it updates. If ID is empty/not found, it creates.
                 $student = Student::updateOrCreate(
                     ['student_id' => $studentId], 
                     [
@@ -393,7 +421,8 @@ class StudentController extends Controller
                     ]
                 );
 
-                // 2. Sync Phones (Delete then re-add for this specific student)
+                // 2. Sync Phones
+                // Clean out old phones for this student to prevent duplicates
                 $student->phone()->delete();
 
                 if (!empty($row[7])) {
@@ -404,17 +433,19 @@ class StudentController extends Controller
                             $student->phone()->create([
                                 'phone_person' => trim($person),
                                 'phone_number' => trim($number),
-                                'country_code' => '60'
+                                'country_code' => '60' 
                             ]);
                         }
                     }
                 }
             }
             DB::commit();
-            return back()->with('success', 'Bulk processing complete. Existing records updated, new records created.');
+            return back()->with('success', 'Bulk processing complete. Records updated/created.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Critical Error: ' . $e->getMessage());
+            return back()->with('error', 'Import Error: ' . $e->getMessage());
+        } finally {
+            fclose($file);
         }
     }
 
