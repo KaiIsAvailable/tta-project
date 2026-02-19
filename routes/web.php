@@ -47,6 +47,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/students/destroy/{student}', [StudentController::class, 'destroy'])->name('students.destroy');
     Route::get('/students/{id}/classes', [StudentController::class, 'getStudentClasses'])->name('students.classes');
     Route::get('students/showProfile/{student_id}', [StudentController::class, 'showProfile'])->name('students.showProfile');
+    Route::get('/students/export-csv', [StudentController::class, 'exportCsv'])->name('students.export');
+    Route::post('/students/import-csv', [StudentController::class, 'importCsv'])->name('students.import');
 
     // Attendance routes
     Route::get('students/attendance', [AttendanceController::class, 'showAttendance'])->name('students.attendance');

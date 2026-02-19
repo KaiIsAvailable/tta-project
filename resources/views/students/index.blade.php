@@ -46,6 +46,26 @@
             <div class="alert alert-danger">{{ session('error') }}</div>
         @endif
 
+        <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light border rounded">
+            <div>
+                <h4 class="mb-0">Bulk Management</h4>
+                <small class="text-muted">Export current list or upload new students via CSV</small>
+            </div>
+            <div class="d-flex shadow-sm">
+                <a href="{{ route('students.export') }}" class="btn btn-outline-primary mr-2">
+                    <i class="fas fa-download"></i> Download CSV Template
+                </a>
+                
+                @if(auth()->user()->isAdmin())
+                    <form action="{{ route('students.import') }}" method="POST" enctype="multipart/form-data" class="form-inline">
+                        @csrf
+                        <input type="file" name="csv_file" class="form-control-file mr-2" style="width: 200px">
+                        <button type="submit" class="btn btn-success">Upload & Seed</button>
+                    </form>
+                @endif
+            </div>
+        </div>
+
         <div class="table-responsive">
             <table class="table table-striped">
                 <thead>

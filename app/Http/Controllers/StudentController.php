@@ -12,6 +12,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\DB;
 
 
 class StudentController extends Controller
@@ -328,6 +330,92 @@ class StudentController extends Controller
     public function stillInProgress()
     {
         return view('students.stillInProgress');
+    }
+
+    public function exportCsv()
+    {
+        $students = Student::with(['belt', 'centre', 'classes', 'phone'])->get();
+
+        $callback = function() use ($students) {
+            $file = fopen('php://output', 'w');
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF)); // Fix for Excel encoding
+
+            // Header: Include 'ID' at the start
+            fputcsv($file, ['ID', 'Name', 'IC Number', 'Fee', 'Belt Name', 'Centre Name', 'Start Date', 'Phones (Person:Number)']);
+
+            foreach ($students as $student) {
+                fputcsv($file, [
+                    $student->student_id, // Primary Key
+                    $student->name,
+                    $student->ic_number,
+                    $student->fee,
+                    $student->belt ? $student->belt->BeltName : '',
+                    $student->centre ? $student->centre->centre_name : '',
+                    $student->student_startDate ? $student->student_startDate->format('Y-m-d') : '',
+                    $student->phone->map(fn($p) => "{$p->phone_person}:{$p->phone_number}")->implode(', ')
+                ]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, [
+            "Content-type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=students_bulk_list.csv",
+        ]);
+    }
+
+    public function importCsv(Request $request)
+    {
+        $request->validate(['csv_file' => 'required|mimes:csv,txt']);
+        $file = fopen($request->file('csv_file')->getRealPath(), 'r');
+        fgetcsv($file); // Skip header
+
+        DB::beginTransaction();
+        try {
+            while (($row = fgetcsv($file)) !== FALSE) {
+                $studentId = $row[0]; // The ID column
+
+                // Find relationships
+                $belt = CurrentBelt::where('BeltName', $row[4])->first();
+                $centre = Centre::where('centre_name', $row[5])->first();
+
+                // 1. UPDATE OR CREATE based on student_id
+                // If $studentId is empty, it will automatically create a new record
+                $student = Student::updateOrCreate(
+                    ['student_id' => $studentId], 
+                    [
+                        'name'              => $row[1],
+                        'ic_number'         => $row[2] ?: null,
+                        'fee'               => $row[3] ?: 0,
+                        'belt_id'           => $belt ? $belt->BeltID : null,
+                        'centre_id'         => $centre ? $centre->centre_id : null,
+                        'student_startDate' => $row[6] ?: now(),
+                    ]
+                );
+
+                // 2. Sync Phones (Delete then re-add for this specific student)
+                $student->phone()->delete();
+
+                if (!empty($row[7])) {
+                    $phonePairs = explode(',', $row[7]);
+                    foreach ($phonePairs as $pair) {
+                        if (str_contains($pair, ':')) {
+                            [$person, $number] = explode(':', $pair);
+                            $student->phone()->create([
+                                'phone_person' => trim($person),
+                                'phone_number' => trim($number),
+                                'country_code' => '60'
+                            ]);
+                        }
+                    }
+                }
+            }
+            DB::commit();
+            return back()->with('success', 'Bulk processing complete. Existing records updated, new records created.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Critical Error: ' . $e->getMessage());
+        }
     }
 
 }

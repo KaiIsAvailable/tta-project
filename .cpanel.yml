@@ -1,5 +1,5 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/thamstae/public_html
+    - export DEPLOYPATH=/home/thamstae/tta-project
     - /bin/cp -R * $DEPLOYPATH
