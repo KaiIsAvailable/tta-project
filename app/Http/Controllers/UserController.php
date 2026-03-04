@@ -132,12 +132,19 @@ class UserController extends Controller
 
     public function userRegister(Request $request)
     {
+        // Change 'image|mimes:...' to 'file'
         $request->validate([
             'name' => 'required|string|max:255',
-            'images' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'images' => 'required|file|max:2048', 
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8'
         ]);
+
+        // Manual extension check because fileinfo is missing
+        $extension = strtolower($request->file('images')->getClientOriginalExtension());
+        if (!in_array($extension, ['jpg', 'jpeg', 'png', 'gif'])) {
+            return back()->with('error', 'The face image must be a file of type: jpeg, png, jpg.')->withInput();
+        }
 
         // Create user
         $user = User::create([
@@ -148,7 +155,7 @@ class UserController extends Controller
         ]);
 
         // Handle profile picture upload after user is saved
-        if ($user->save()) {
+        if ($user) {
             $this->handleUserImageUpload($request, $user);
             $user->save();
         }
@@ -207,7 +214,7 @@ class UserController extends Controller
                 
                 $image = $request->file('images');
                 
-                // Generate unique filename
+                // Generate unique filename using extension from client
                 $userId = $user->id ?? uniqid();
                 $filename = 'user_' . $userId . '_' . time() . '.' . $image->getClientOriginalExtension();
                 
@@ -237,9 +244,17 @@ class UserController extends Controller
         
         $request->validate([
             'name' => 'required|string|max:255',
-            'images' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'images' => 'nullable|file|max:2048', // Changed to file
             'email' => 'required|string|email|max:255|unique:users,email,' . $id,
         ]);
+
+        // Manual extension check for updates
+        if ($request->hasFile('images')) {
+            $extension = strtolower($request->file('images')->getClientOriginalExtension());
+            if (!in_array($extension, ['jpg', 'jpeg', 'png', 'gif'])) {
+                return back()->with('error', 'The image must be a file of type: jpeg, png, jpg.')->withInput();
+            }
+        }
 
         $user->update([
             'name' => $request->name,
